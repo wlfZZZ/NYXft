@@ -1,0 +1,109 @@
+{% extends "admin/admin_base.html" %}
+{% set active_page = 'admin_nutrition' %}
+
+{% block content %}
+<div style="margin-bottom: 3.5rem; display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+        <h1 style="font-family: var(--font-header); font-size: 3.5rem; letter-spacing: -2px; line-height: 0.9; text-transform: uppercase;">Fuel Intelligence</h1>
+        <p style="color: var(--cmd-dim); font-weight: 800; text-transform: uppercase; letter-spacing: 4px; font-size: 0.75rem; margin-top: 0.5rem;">Global Macro Orchestration & Protocol Deployment</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <button class="btn-action" style="background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--cmd-border);">Sync Master DB</button>
+        <button class="btn-action" style="background: #FFF; color: #000;">Deploy New Protocol</button>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 360px; gap: 1.5rem;">
+    <!-- NUTRITION REPOSITORY -->
+    <div class="glass-card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--cmd-border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
+            <h3 style="font-family: var(--font-header); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px;">Fuel Repository</h3>
+            <div style="font-family: monospace; font-size: 0.65rem; color: var(--cmd-dim);">DATABASE_VERSION: 2.1.0</div>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--cmd-border);">
+                        <th style="text-align: left; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Protocol Identifier</th>
+                        <th style="text-align: left; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Phase</th>
+                        <th style="text-align: left; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Fuel Sign</th>
+                        <th style="text-align: right; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in nutrition_items %}
+                    <tr style="border-bottom: 1px solid var(--cmd-border); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1.25rem 2.5rem;">
+                            <div style="font-weight: 700; font-size: 0.95rem;">{{ item.name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--cmd-dim);">SERVING: {{ item.serving_size }}</div>
+                        </td>
+                        <td style="padding: 1.25rem 2.5rem;">
+                            <span style="padding: 4px 10px; background: rgba(99, 102, 241, 0.1); color: #6366F1; border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 4px; font-size: 0.6rem; font-weight: 950; text-transform: uppercase;">Verified</span>
+                        </td>
+                        <td style="padding: 1.25rem 2.5rem;">
+                            <div style="font-family: monospace; font-size: 0.75rem; font-weight: 900; color: #FFF;">{{ item.calories }} CAL</div>
+                            <div style="font-size: 0.65rem; color: var(--cmd-dim);">P:{{ item.protein }}g | C:{{ item.carbs }}g | F:{{ item.fats }}g</div>
+                        </td>
+                        <td style="padding: 1.25rem 2.5rem; text-align: right;">
+                            <form action="{{ url_for('delete_nutrition', nutrition_id=item.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn-action" style="padding: 6px 14px; font-size: 0.65rem; background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.2);" onclick="return confirm('Purge protocol from repository?')">Decommission</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ADD NUTRITION -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="glass-card" style="padding: 2.5rem;">
+            <h3 style="font-family: var(--font-header); font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem;">Initialize Protocol</h3>
+            <p style="font-size: 0.75rem; color: var(--cmd-dim); margin-bottom: 2rem; font-weight: 700; letter-spacing: 1px;">DATABASE_ENTRY_UPLINK</p>
+
+            <form action="{{ url_for('admin_nutrition') }}" method="POST">
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Protocol Name</label>
+                    <input type="text" name="name" placeholder="EX: ORGANIC_PROTEIN_ISOLATE" required style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Calories</label>
+                        <input type="number" name="calories" required style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Protein (g)</label>
+                        <input type="number" name="protein" required style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Carbs (g)</label>
+                        <input type="number" name="carbs" required style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Fats (g)</label>
+                        <input type="number" name="fats" required style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Serving Size</label>
+                    <input type="text" name="serving_size" placeholder="EX: 100g" required style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                </div>
+
+                <button type="submit" class="btn-action" style="width: 100%; background: #FFF; color: #000;">Commit Entry</button>
+            </form>
+        </div>
+
+        <div class="glass-card" style="background: linear-gradient(135deg, #111 0%, #000 100%); border-color: rgba(99, 102, 241, 0.2);">
+            <h3 style="font-family: var(--font-header); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; color: #6366F1;">Macro Integrity</h3>
+            <p style="font-size: 0.75rem; color: var(--cmd-dim); line-height: 1.6;">Precision orchestration system active. All fuel entries are cross-referenced with metabolic safety protocols.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

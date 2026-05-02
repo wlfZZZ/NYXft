@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Authentication | NYXFT Infrastructure</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg: #000000;
+            --text: #FFFFFF;
+            --accent: #007AFF;
+            --dim: #515154;
+            --border: #2C2C2E;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .login-frame {
+            width: 100%;
+            max-width: 400px;
+            padding: 3rem;
+            animation: terminalEntry 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes terminalEntry {
+            from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        .brand-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .brand-tag {
+            font-size: 0.6rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+        }
+
+        .brand-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin: 0;
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.6rem;
+            font-weight: 900;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .admin-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 2.5px solid var(--border);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            outline: none;
+            padding: 8px 0;
+            transition: 0.3s;
+        }
+
+        .admin-input:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-auth {
+            width: 100%;
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            padding: 1.2rem;
+            border-radius: 15px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-auth:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .status-msg {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #FF3B30;
+            text-align: center;
+            margin-top: 1.5rem;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .status-msg.visible { opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+    <div class="login-frame">
+        <header class="brand-header">
+            <div class="brand-tag">INFRASTRUCTURE OVERSIGHT</div>
+            <h1 class="brand-title">NYXFT ADMIN</h1>
+        </header>
+
+        <form id="adminForm" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <label>Administrator ID</label>
+                <input type="email" id="email" class="admin-input" required placeholder="admin@nyxft.com">
+            </div>
+
+            <div class="input-group">
+                <label>Security Passcode</label>
+                <input type="password" id="password" class="admin-input" required placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="btn-auth">AUTHORIZE ACCESS</button>
+            <div id="statusMsg" class="status-msg">AUTHORIZATION FAILED</div>
+        </form>
+    </div>
+
+    <script>
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('statusMsg');
+
+            const res = await fetch('/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (res.ok) {
+                window.location.href = '/admin';
+            } else {
+                msg.classList.add('visible');
+                setTimeout(() => msg.classList.remove('visible'), 3000);
+            }
+        }
+    </script>
+</body>
+</html>

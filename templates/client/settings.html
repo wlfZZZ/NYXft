@@ -1,0 +1,277 @@
+{% extends "client/base_portal.html" %}
+
+{% block title %}System Calibration | NYXFT Intelligence{% endblock %}
+
+{% set active_page = 'settings' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --accent-blue: #007AFF;
+        --accent-red: #FF3B30;
+        --accent-black: #000000;
+        --text-dim: #8E8E93;
+        --border-color: #E5E5EA;
+        --bg-canvas: #FFFFFF;
+        --grid-line: rgba(0,0,0,0.02);
+        --bg-subtle: #F2F2F7;
+    }
+
+    body {
+        background-color: var(--bg-canvas);
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .calibration-frame {
+        height: 100vh;
+        padding: 2.5rem 5rem;
+        background-image: 
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 100px 100px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ════ TACTICAL HEADER ════ */
+    .cal-header {
+        margin-bottom: 3rem;
+        flex-shrink: 0;
+    }
+    .brand-tag { font-size: 0.6rem; font-weight: 900; letter-spacing: 5px; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 0.8rem; }
+    .main-title { font-size: 4rem; font-weight: 900; letter-spacing: -3px; line-height: 0.8; margin: 0; }
+
+    /* ════ CONFIGURATION GRID ════ */
+    .config-grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        min-height: 0;
+    }
+
+    .config-module {
+        background: white;
+        border: 1px solid var(--border-color);
+        padding: 3rem;
+        border-radius: 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .mod-tag { font-size: 0.55rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 3.5px; text-transform: uppercase; margin-bottom: 0.9rem; }
+    .mod-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 1.8rem; }
+
+    .field-group { margin-bottom: 1.5rem; }
+    .field-group label { display: block; font-size: 0.6rem; font-weight: 900; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+    .cal-input {
+        width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--border-color);
+        font-size: 1.2rem; font-weight: 900; outline: none; padding: 8px 0; transition: 0.3s;
+    }
+    .cal-input:focus { border-color: var(--accent-black); }
+
+    /* ════ FITNESS SUMMARY ════ */
+    .fitness-summary {
+        background: var(--bg-subtle);
+        padding: 1.5rem;
+        border-radius: 20px;
+        margin-top: 1.2rem;
+    }
+    .summary-item { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .summary-label { font-size: 0.6rem; font-weight: 900; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+    .summary-val { font-size: 1rem; font-weight: 900; }
+
+    /* ════ BUTTONS & FEEDBACK ════ */
+    .btn-save {
+        background: var(--accent-black); color: white; border: none; padding: 1.2rem; border-radius: 16px;
+        font-weight: 900; font-size: 0.75rem; letter-spacing: 2px; cursor: pointer; transition: 0.2s; width: 100%;
+    }
+    .btn-save:hover { background: var(--accent-blue); }
+    .btn-save:active { transform: scale(0.98); }
+
+    .status-msg {
+        font-size: 0.65rem; font-weight: 900; text-align: center; margin-top: 1.2rem; opacity: 0; transition: 0.4s; letter-spacing: 1.2px;
+    }
+    .status-msg.visible { opacity: 1; }
+    .error-msg { color: var(--accent-red); }
+    .success-msg { color: var(--accent-blue); }
+
+    .forgot-link { font-size: 0.6rem; font-weight: 900; color: var(--text-dim); text-decoration: none; display: inline-block; margin-top: 12px; letter-spacing: 1.2px; text-transform: uppercase; transition: 0.2s; }
+    .forgot-link:hover { color: var(--accent-blue); }
+
+    .btn-purge {
+        background: transparent; color: var(--accent-red); border: 1.5px solid var(--accent-red);
+        padding: 1rem; border-radius: 16px; font-weight: 900; font-size: 0.65rem; letter-spacing: 2px; cursor: pointer; transition: 0.2s; width: 100%;
+    }
+    .btn-purge:hover { background: var(--accent-red); color: white; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="calibration-frame">
+    
+    <header class="cal-header">
+        <div class="brand-tag">SYSTEM CALIBRATION // NYXFT.V1</div>
+        <h1 class="main-title">Module Configuration</h1>
+    </header>
+
+    <div class="config-grid">
+        
+        <!-- MODULE 1: PERSONNEL CALIBRATION -->
+        <div class="config-module">
+            <div>
+                <div class="mod-tag">Identity Matrix</div>
+                <h3 class="mod-title">Personnel Calibration</h3>
+                
+                <div class="field-group">
+                    <label>System Nickname</label>
+                    <input type="text" id="nickname" class="cal-input" value="{{ user.nickname }}">
+                </div>
+
+                <div class="field-group">
+                    <label>Mission Goal Architecture</label>
+                    <select id="goal" class="cal-input" style="appearance: none;" onchange="updateSummary()">
+                        <option value="Bulk" {{ 'selected' if user.goal == 'Bulk' }}>Bulk Protocol</option>
+                        <option value="Cut" {{ 'selected' if user.goal == 'Cut' }}>Cut Protocol</option>
+                        <option value="Maintain" {{ 'selected' if user.goal == 'Maintain' }}>Maintain Protocol</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label>Target Mass (KG)</label>
+                    <input type="number" id="targetWeight" class="cal-input" value="{{ user.weight }}" oninput="updateSummary()">
+                </div>
+
+                <div class="fitness-summary" id="fitnessSummary">
+                    <div class="summary-item">
+                        <span class="summary-label">Daily Calories</span>
+                        <span class="summary-val" id="sumCals">-- kcal</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Protein Target</span>
+                        <span class="summary-val" id="sumProt">--g</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button onclick="updateSettings()" class="btn-save">SYNC CONFIGURATION</button>
+                <div id="statusMsg" class="status-msg">CONFIGURATION SAVED</div>
+            </div>
+        </div>
+
+        <!-- MODULE 2: SECURITY UPLINK -->
+        <div class="config-module">
+            <div>
+                <div class="mod-tag">Security Uplink</div>
+                <h3 class="mod-title">Passcode Calibration</h3>
+                
+                <div class="field-group">
+                    <label>Current Passcode</label>
+                    <input type="password" id="oldPass" class="cal-input" placeholder="••••••••">
+                </div>
+
+                <div class="field-group">
+                    <label>New Passcode</label>
+                    <input type="password" id="newPass" class="cal-input" placeholder="••••••••">
+                </div>
+
+                <div class="field-group">
+                    <label>Confirm New Passcode</label>
+                    <input type="password" id="confPass" class="cal-input" placeholder="••••••••">
+                </div>
+
+                <a href="{{ url_for('forgot_password') }}" class="forgot-link">Forgot Passcode?</a>
+            </div>
+
+            <div>
+                <button onclick="updateSecurity()" class="btn-save">SYNC SECURITY PROTOCOLS</button>
+                <div id="securityMsg" class="status-msg">SECURITY SYNCED</div>
+                
+                <div style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <div class="mod-tag">Data Integrity</div>
+                    <button class="btn-purge" onclick="confirmPurge()">PURGE PERFORMANCE RECORDS</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function updateSummary() {
+        const goal = document.getElementById('goal').value;
+        const weight = parseFloat(document.getElementById('targetWeight').value) || 0;
+        if (weight <= 0) return;
+        let cals = goal === 'Bulk' ? Math.round(weight * 35) : (goal === 'Cut' ? Math.round(weight * 28) : Math.round(weight * 31));
+        document.getElementById('sumCals').innerText = `${cals} kcal`;
+        document.getElementById('sumProt').innerText = `${Math.round(weight * 2.2)}g`;
+    }
+
+    async function updateSettings() {
+        const statusMsg = document.getElementById('statusMsg');
+        const data = {
+            nickname: document.getElementById('nickname').value,
+            goal: document.getElementById('goal').value,
+            weight: document.getElementById('targetWeight').value
+        };
+
+        const res = await fetch('/api/settings/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+            statusMsg.innerText = "CONFIGURATION SAVED";
+            statusMsg.className = "status-msg success-msg visible";
+            setTimeout(() => statusMsg.classList.remove('visible'), 2000);
+        }
+    }
+
+    async function updateSecurity() {
+        const securityMsg = document.getElementById('securityMsg');
+        const oldP = document.getElementById('oldPass').value;
+        const newP = document.getElementById('newPass').value;
+        const confP = document.getElementById('confPass').value;
+
+        if (!oldP || !newP || !confP) {
+            securityMsg.innerText = "ALL FIELDS REQUIRED";
+            securityMsg.className = "status-msg error-msg visible";
+            setTimeout(() => securityMsg.classList.remove('visible'), 3000);
+            return;
+        }
+
+        const res = await fetch('/api/settings/security', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ old_pass: oldP, new_pass: newP, conf_pass: confP })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            securityMsg.innerText = "SECURITY SYNCED";
+            securityMsg.className = "status-msg success-msg visible";
+            document.getElementById('oldPass').value = '';
+            document.getElementById('newPass').value = '';
+            document.getElementById('confPass').value = '';
+        } else {
+            securityMsg.innerText = data.error || "SYNC FAILED";
+            securityMsg.className = "status-msg error-msg visible";
+        }
+        setTimeout(() => securityMsg.classList.remove('visible'), 3000);
+    }
+
+    function confirmPurge() {
+        if (confirm("Are you sure you want to delete all records?")) alert("Archives Purged.");
+    }
+
+    updateSummary();
+</script>
+{% endblock %}

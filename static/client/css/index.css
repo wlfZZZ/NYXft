@@ -1,0 +1,224 @@
+/* ═══════════════════════════════════════
+   NYXFT MINIMALIST EDITION
+   THEME: CLEAN WHITE GRID + BOLD BLACK
+   CONCEPT: PROFESSIONAL SIMPLICITY
+   ═══════════════════════════════════════ */
+
+:root {
+    --grid-color: rgba(0, 0, 0, 0.04);
+    --grid-size: 40px;
+    --accent: #000000;
+}
+
+.landing-scope {
+    background-color: #FFFFFF;
+    color: #000000;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ── SUBTLE ARCHITECTURAL GRID ── */
+.landing-scope::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ── HERO SECTION ── */
+.hero-full {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 5%;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-badge {
+    border: 2px solid #000;
+    padding: 5px 15px;
+    font-weight: 900;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+.hero-title {
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 950;
+    line-height: 0.9;
+    letter-spacing: -4px;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+}
+
+.hero-desc {
+    font-size: 1.1rem;
+    font-weight: 600;
+    max-width: 550px;
+    line-height: 1.6;
+    margin-bottom: 3rem;
+    opacity: 0.7;
+}
+
+.hero-btns {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.btn-minimal {
+    padding: 18px 40px;
+    background: #000;
+    color: #FFF;
+    text-decoration: none;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    border: 2px solid #000;
+    transition: all 0.3s ease;
+}
+
+.btn-minimal.alt {
+    background: transparent;
+    color: #000;
+}
+
+.btn-minimal:hover {
+    background: #FFF;
+    color: #000;
+}
+
+/* ── FEATURE GRID ── */
+.sect-padding {
+    padding: 100px 0;
+    position: relative;
+    z-index: 1;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 5rem;
+}
+
+.sub-title {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.main-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 950;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.minimal-card {
+    border: 2px solid #000;
+    padding: 3rem;
+    background: #FFF;
+    transition: transform 0.3s ease;
+}
+
+.minimal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 10px 10px 0 #000;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.minimal-card h3 {
+    font-size: 1.5rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.minimal-card p {
+    line-height: 1.6;
+    font-weight: 600;
+    opacity: 0.6;
+}
+
+/* ── CORE ILLUSTRATION (2D) ── */
+.split-sect {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.ui-mockup-2d {
+    border: 3px solid #000;
+    background: #FFF;
+    padding: 40px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 15px 15px 0 #000;
+}
+
+.ui-line { height: 10px; background: #000; width: 100%; }
+.ui-line.short { width: 60%; opacity: 0.2; }
+
+.ui-row {
+    display: flex;
+    gap: 20px;
+}
+
+.ui-box {
+    flex: 1;
+    height: 100px;
+    border: 2px solid #000;
+}
+
+/* ── FINAL CTA ── */
+.cta-sect {
+    padding: 120px 0;
+    text-align: center;
+}
+
+/* ── REVEAL ── */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease-out;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .split-sect { grid-template-columns: 1fr; }
+    .hero-title { font-size: 3.5rem; }
+}

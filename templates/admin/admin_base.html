@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYX COMMAND | Infrastructure Oversight</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --cmd-bg: #000000;
+            --cmd-surface: #0A0A0A;
+            --cmd-card: #111111;
+            --cmd-border: rgba(255, 255, 255, 0.05);
+            --cmd-accent: #FFFFFF;
+            --cmd-dim: #666666;
+            --cmd-glow: rgba(255, 255, 255, 0.02);
+            --font-header: 'Archivo Black', sans-serif;
+            --font-main: 'Space Grotesk', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            height: 100vh;
+            width: 100vw;
+            background-color: var(--cmd-bg);
+            color: #FFFFFF;
+            font-family: var(--font-main);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── TACTICAL GRID OVERLAY ── */
+        .tactical-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .cmd-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── SIDEBAR: DEEP OBSIDIAN ── */
+        .cmd-sidebar {
+            background: var(--cmd-surface);
+            border-right: 1px solid var(--cmd-border);
+            display: flex;
+            flex-direction: column;
+            padding: 3rem 1.5rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .cmd-logo {
+            font-family: var(--font-header);
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            margin-bottom: 4rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cmd-logo span { color: var(--cmd-dim); }
+
+        .cmd-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            color: var(--cmd-dim);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        .nav-item i { font-size: 1.2rem; }
+
+        .nav-item:hover {
+            color: #FFF;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .nav-item.active {
+            color: #FFF;
+            background: var(--cmd-card);
+            border: 1px solid var(--cmd-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* ── MAIN VIEWPORT ── */
+        .cmd-main {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.03) 0%, transparent 40%);
+        }
+
+        .cmd-header {
+            height: 90px;
+            padding: 0 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--cmd-border);
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-pill {
+            padding: 6px 14px;
+            border-radius: 30px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            box-shadow: 0 0 10px currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .cmd-body {
+            flex: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* ── UNIVERSAL COMPONENTS ── */
+        .glass-card {
+            background: var(--cmd-card);
+            border: 1px solid var(--cmd-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: transform 0.3s;
+        }
+
+        .glass-card:hover { border-color: rgba(255,255,255,0.1); }
+
+        .btn-action {
+            background: #FFF;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: var(--font-main);
+            font-weight: 900;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(255,255,255,0.1);
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--cmd-border); border-radius: 10px; }
+
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="tactical-grid"></div>
+    <div class="cmd-layout">
+        <aside class="cmd-sidebar">
+            <div class="cmd-logo">
+                NYX<span>FT</span> <i class="ph-fill ph-shield-check"></i>
+            </div>
+            
+            <nav class="cmd-nav">
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-item {% if active_page == 'admin_dash' %}active{% endif %}">
+                    <i class="ph-bold ph-squares-four"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin_users') }}" class="nav-item {% if active_page == 'admin_users' %}active{% endif %}">
+                    <i class="ph-bold ph-users-three"></i> Athletes
+                </a>
+                <a href="{{ url_for('admin_workouts') }}" class="nav-item {% if active_page == 'admin_workouts' %}active{% endif %}">
+                    <i class="ph-bold ph-barbell"></i> Training
+                </a>
+                <a href="{{ url_for('admin_nutrition') }}" class="nav-item {% if active_page == 'admin_nutrition' %}active{% endif %}">
+                    <i class="ph-bold ph-flask"></i> Protocols
+                </a>
+            </nav>
+
+        </aside>
+
+        <main class="cmd-main">
+            <header class="cmd-header">
+                <div class="system-status">
+                    <div class="status-pill">
+                        <div class="status-dot"></div> SYSTEM_ONLINE
+                    </div>
+                    <span style="font-size: 0.7rem; font-weight: 700; color: var(--cmd-dim); letter-spacing: 2px;">HANDSHAKE: OK</span>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 3rem;">
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.75rem; font-weight: 900; letter-spacing: 1px;">COMMANDER</div>
+                        <div style="font-size: 0.6rem; color: var(--cmd-dim); font-weight: 700;">NYX_ADMIN_AUTH_01</div>
+                    </div>
+                    <a href="{{ url_for('admin_logout') }}" class="btn-action" style="background: transparent; color: #FFF; border: 1px solid var(--cmd-border);">Terminate</a>
+                </div>
+            </header>
+
+            <div class="cmd-body">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

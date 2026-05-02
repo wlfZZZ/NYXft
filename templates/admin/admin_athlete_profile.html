@@ -1,0 +1,121 @@
+{% extends "admin/admin_base.html" %}
+{% set active_page = 'admin_users' %}
+
+{% block content %}
+<div style="margin-bottom: 4rem; display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+        <a href="{{ url_for('admin_users') }}" style="color: var(--cmd-dim); text-decoration: none; font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;">
+            <i class="ph-bold ph-arrow-left"></i> BACK TO ROSTER
+        </a>
+        <h1 style="font-size: 3.5rem; letter-spacing: -3px; margin: 0;">{{ target_user.name }}</h1>
+        <p style="color: var(--cmd-dim); font-weight: 800; text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; margin-top: 0.5rem;">Athlete Performance Audit</p>
+    </div>
+    <div style="text-align: right;">
+        <span class="badge {% if target_user.nutrition_goal == 'Bulk' %}badge-elite{% elif target_user.nutrition_goal == 'Cut' %}badge-pro{% else %}badge-starter{% endif %}" style="font-size: 1rem; padding: 10px 20px;">
+            {{ target_user.nutrition_goal|upper }} PHASE
+        </span>
+    </div>
+</div>
+
+<div class="stat-grid" style="margin-bottom: 3rem;">
+    <div class="cmd-card">
+        <span class="stat-label">Current Weight</span>
+        <div class="stat-val">{{ target_user.weight or '—' }} <span style="font-size: 1rem; color: var(--cmd-dim);">KG</span></div>
+    </div>
+    <div class="cmd-card">
+        <span class="stat-label">Assigned Protocol</span>
+        <div style="font-family: var(--font-header); font-size: 1.5rem; margin-top: 0.5rem;">
+            {% if target_user.assigned_workout %}
+                DYNAMIC_UPLINK
+            {% else %}
+                NO_ASSIGNMENT
+            {% endif %}
+        </div>
+    </div>
+    <div class="cmd-card">
+        <span class="stat-label">System Continuity</span>
+        <div class="stat-val">{{ logs|length }} <span style="font-size: 1rem; color: var(--cmd-dim);">LOGS</span></div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    <!-- PROGRESS CHART -->
+    <div class="cmd-card">
+        <h3 style="margin-bottom: 2rem;">BIOMETRIC PROGRESSION</h3>
+        <canvas id="weightChart" style="max-height: 400px;"></canvas>
+    </div>
+
+    <!-- RECENT PRs -->
+    <div class="cmd-card">
+        <h3 style="margin-bottom: 2rem;">PR INTELLIGENCE</h3>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            {% for pr in prs[:5] %}
+            <div style="padding: 1rem; background: #000; border: 1px solid var(--cmd-border); border-radius: 12px;">
+                <div style="font-size: 0.7rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase;">{{ pr.date }}</div>
+                <div style="font-weight: 800; margin: 4px 0;">{{ pr.exercise }}</div>
+                <div style="font-family: monospace; font-weight: 700;">{{ pr.weight }}kg x {{ pr.reps }}</div>
+            </div>
+            {% endfor %}
+            {% if not prs %}
+            <p style="color: var(--cmd-dim); font-weight: 700;">No PR data recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="cmd-card" style="margin-top: 3rem; padding: 0; overflow: hidden;">
+    <h3 style="padding: 2.5rem 2.5rem 1.5rem; margin: 0;">LOG HISTORY</h3>
+    <table class="cmd-table">
+        <thead>
+            <tr>
+                <th style="padding-left: 2.5rem;">Date</th>
+                <th>Weight</th>
+                <th>Nutrition (kcal)</th>
+                <th>Macros (P/C/F)</th>
+                <th style="padding-right: 2.5rem;">Steps</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs[::-1][:10] %}
+            <tr>
+                <td style="padding-left: 2.5rem;">{{ log.date }}</td>
+                <td>{{ log.weight or '—' }}kg</td>
+                <td>{{ log.cals or '—' }}</td>
+                <td style="font-family: monospace; font-size: 0.8rem;">
+                    {{ log.protein or 0 }} / {{ log.carbs or 0 }} / {{ log.fats or 0 }}
+                </td>
+                <td style="padding-right: 2.5rem;">{{ log.steps or '0' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ dates|tojson }},
+            datasets: [{
+                label: 'Body Mass (kg)',
+                data: {{ weights|tojson }},
+                borderColor: '#FFF',
+                borderWidth: 3,
+                tension: 0.4,
+                pointRadius: 0,
+                fill: true,
+                backgroundColor: 'rgba(255,255,255,0.02)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: false, grid: { color: '#1F1F1F' }, ticks: { color: '#8E8E93' } },
+                x: { grid: { display: false }, ticks: { color: '#8E8E93' } }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends "client/base_portal.html" %}
+
+{% block title %}Signal Terminal | NYXFT Intelligence{% endblock %}
+
+{% set active_page = 'coaches' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --accent-blue: #007AFF;
+        --accent-black: #000000;
+        --text-dim: #8E8E93;
+        --border-color: #E5E5EA;
+        --bg-canvas: #FFFFFF;
+        --grid-line: rgba(0,0,0,0.02);
+    }
+
+    body {
+        background-color: var(--bg-canvas);
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .terminal-frame {
+        height: 100vh;
+        padding: 2.5rem 4rem;
+        background-image: 
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 100px 100px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ════ TACTICAL HEADER ════ */
+    .terminal-header {
+        margin-bottom: 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        flex-shrink: 0;
+    }
+
+    .brand-intel { font-size: 0.5rem; font-weight: 900; letter-spacing: 5px; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 0.8rem; }
+    .terminal-title { font-size: 3.5rem; font-weight: 900; letter-spacing: -3px; line-height: 0.8; margin: 0; }
+
+    /* ════ DUAL-PANE ARCHITECTURE ════ */
+    .panes-container {
+        flex: 1;
+        display: flex;
+        gap: 3rem;
+        min-height: 0;
+    }
+
+    /* Pane 1: Command Uplink (Expanded) */
+    .command-uplink {
+        flex: 3;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 32px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .uplink-header {
+        padding: 1.5rem 2.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .uplink-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .uplink-messages::-webkit-scrollbar { width: 3px; }
+    .uplink-messages::-webkit-scrollbar-thumb { background: var(--accent-black); }
+
+    .packet { max-width: 70%; padding: 1.2rem 1.8rem; border-radius: 20px; font-size: 0.85rem; line-height: 1.6; }
+    .packet.athlete { align-self: flex-end; background: var(--accent-black); color: white; border-bottom-right-radius: 4px; }
+    .packet.coach { align-self: flex-start; background: var(--bg-canvas); border: 1.5px solid var(--accent-black); border-bottom-left-radius: 4px; }
+    .packet-meta { font-size: 0.55rem; font-weight: 900; opacity: 0.5; margin-top: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    .uplink-input {
+        padding: 1.5rem 2.5rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 1.5rem;
+    }
+    .packet-input { flex: 1; border: none; outline: none; font-weight: 800; font-size: 0.9rem; }
+    .btn-transmit { background: var(--accent-black); color: white; border: none; width: 50px; height: 50px; border-radius: 15px; cursor: pointer; transition: 0.3s; }
+    .btn-transmit:hover { background: var(--accent-blue); transform: scale(1.05); }
+
+    /* Pane 3: Personnel Dossier (Right) */
+    .personnel-dossier {
+        width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .dossier-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        padding: 2rem;
+        border-radius: 24px;
+    }
+    .dos-tag { font-size: 0.45rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
+    .dos-title { font-size: 1.1rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 0.8rem; }
+    .dos-bio { font-size: 0.75rem; color: var(--text-dim); line-height: 1.6; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="terminal-frame">
+    
+    <header class="terminal-header">
+        <div>
+            <div class="brand-intel">SIGNAL TRANSCEIVER // NYXFT.V1</div>
+            <h1 class="terminal-title">Signal Terminal</h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.5rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px;">Mission Logic</div>
+            <div style="font-weight: 900; font-size: 1.2rem; letter-spacing: -0.5px;">{{ user.goal }} // {{ user.weight }}KG</div>
+        </div>
+    </header>
+
+    <div class="panes-container">
+        
+        <!-- PANE 1: COMMAND UPLINK (EXPANDED) -->
+        <div class="command-uplink">
+            <div class="uplink-header">
+                <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 1px;">ENCRYPTED CHANNEL // ALPHA-01</div>
+                <div style="font-size: 0.6rem; font-weight: 900; color: var(--text-dim);">TERMINAL ID: 882-991-X</div>
+            </div>
+
+            <div class="uplink-messages" id="chatStream">
+                {% for msg in messages %}
+                <div class="packet {{ 'athlete' if msg.sender == 'athlete' else 'coach' }}">
+                    <div>{{ msg.content }}</div>
+                    <div class="packet-meta">{{ msg.timestamp.strftime('%H:%M') }} // {{ 'ATHLETE' if msg.sender == 'athlete' else 'COMMAND UPLINK' }}</div>
+                </div>
+                {% else %}
+                <div style="text-align: center; color: var(--text-dim); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; margin-top: 4rem;">
+                    [ TERMINAL INITIALIZED ]<br>NO DATA PACKETS DETECTED. START UPLINK.
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="uplink-input">
+                <input type="text" id="msgInput" class="packet-input" placeholder="Transmit packet to Alpha Intel..." required autocomplete="off">
+                <button type="button" class="btn-transmit" id="sendBtn">
+                    <i class="ph-bold ph-paper-plane-right" style="font-size: 1.2rem;"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- PANE 3: PERSONNEL DOSSIER -->
+        <div class="personnel-dossier">
+            <div class="dossier-card">
+                <div class="dos-tag">Personnel Bio</div>
+                <div class="dos-title">Alpha Intel</div>
+                <div class="dos-bio">Specialist in neural-load optimization and structural evolution. Current mission: Overseeing the {{ user.goal }} architecture for Athlete #{{ user.id }}.</div>
+            </div>
+
+            <div class="dossier-card" style="background: var(--accent-black); color: white; border: none;">
+                <div class="dos-tag" style="color: var(--accent-blue);">Tactical Specialty</div>
+                <div class="dos-title" style="font-size: 1.5rem;">Hypertrophy Evolution</div>
+                <div style="font-size: 0.5rem; font-weight: 900; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-top: 1rem;">Primary Competency</div>
+            </div>
+
+            <div class="dossier-card">
+                <div class="dos-tag">System Health</div>
+                <div style="font-size: 2rem; font-weight: 900; letter-spacing: -1px;">100%</div>
+                <div style="font-size: 0.5rem; font-weight: 900; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 1px;">Signal Stability</div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const msgInput = document.getElementById('msgInput');
+        const chatStream = document.getElementById('chatStream');
+        const sendBtn = document.getElementById('sendBtn');
+        const userId = {{ user.id }};
+
+        // Initial Scroll
+        chatStream.scrollTop = chatStream.scrollHeight;
+
+        // --- FETCH HISTORY ---
+        async function loadHistory() {
+            const res = await fetch(`/api/chat/history/${userId}`);
+            const data = await res.json();
+            
+            if (chatStream.children.length !== data.length) {
+                chatStream.innerHTML = '';
+                if (data.length === 0) {
+                    chatStream.innerHTML = '<div style="text-align: center; color: var(--text-dim); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; margin-top: 4rem;">[ TERMINAL INITIALIZED ]<br>NO DATA PACKETS DETECTED. START UPLINK.</div>';
+                } else {
+                    data.forEach(m => {
+                        const packet = document.createElement('div');
+                        packet.className = `packet ${m.sender === 'athlete' ? 'athlete' : 'coach'}`;
+                        packet.innerHTML = `
+                            <div>${m.content}</div>
+                            <div class="packet-meta">${m.timestamp} // ${m.sender === 'athlete' ? 'ATHLETE' : 'COMMAND UPLINK'}</div>
+                        `;
+                        chatStream.appendChild(packet);
+                    });
+                }
+                chatStream.scrollTop = chatStream.scrollHeight;
+            }
+        }
+
+        // --- SEND SIGNAL ---
+        const sendSignal = async () => {
+            const val = msgInput.value.trim();
+            if (!val) return;
+
+            const res = await fetch('/api/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId,
+                    content: val,
+                    sender: 'athlete'
+                })
+            });
+
+            if (res.ok) {
+                msgInput.value = '';
+                loadHistory();
+            }
+        };
+
+        // --- POLLING ---
+        setInterval(loadHistory, 3000);
+
+        // Initial Load
+        loadHistory();
+
+        sendBtn.addEventListener('click', sendSignal);
+        msgInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendSignal();
+        });
+    });
+</script>
+{% endblock %}

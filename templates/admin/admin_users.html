@@ -1,0 +1,183 @@
+{% extends "admin/admin_base.html" %}
+{% set active_page = 'admin_users' %}
+
+{% block content %}
+<div style="margin-bottom: 3.5rem; display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+        <h1 style="font-family: var(--font-header); font-size: 3.5rem; letter-spacing: -2px; line-height: 0.9; text-transform: uppercase;">Athlete Nodes</h1>
+        <p style="color: var(--cmd-dim); font-weight: 800; text-transform: uppercase; letter-spacing: 4px; font-size: 0.75rem; margin-top: 0.5rem;">Unit Oversight & Tactical Coordination</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <button class="btn-action" style="background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--cmd-border);">Export Manifest</button>
+        <button class="btn-action" style="background: #FFF; color: #000;">Deploy New Node</button>
+    </div>
+</div>
+
+<div class="glass-card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--cmd-border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
+        <div style="display: flex; gap: 2rem;">
+            <div style="font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; color: #FFF;">TOTAL_UNITS: {{ users|length }}</div>
+            <div style="font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; color: #10B981;">UPLINK_STABLE: 100%</div>
+        </div>
+        <div style="position: relative;">
+            <i class="ph ph-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--cmd-dim);"></i>
+            <input type="text" placeholder="SEARCH_NODE..." style="background: #000; border: 1px solid var(--cmd-border); border-radius: 8px; padding: 8px 12px 8px 36px; font-family: monospace; font-size: 0.7rem; color: #FFF; width: 240px;">
+        </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--cmd-border);">
+                    <th style="text-align: left; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Athlete Node</th>
+                    <th style="text-align: left; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Identifier</th>
+                    <th style="text-align: left; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Protocol</th>
+                    <th style="text-align: left; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Biometric Status</th>
+                    <th style="text-align: right; padding: 1.25rem 2.5rem; color: var(--cmd-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="border-bottom: 1px solid var(--cmd-border); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1.25rem 2.5rem;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #222, #000); border-radius: 50%; border: 1px solid var(--cmd-border); display: flex; align-items: center; justify-content: center; font-family: var(--font-header); font-size: 0.8rem;">
+                                {{ user.name[0] }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.95rem;">{{ user.name }}</div>
+                                <div style="font-size: 0.75rem; color: var(--cmd-dim);">{{ user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 1.25rem 2.5rem; font-family: monospace; color: var(--cmd-dim); font-size: 0.8rem;">ID_NODE_{{ "%04d"|format(user.id) }}</td>
+                    <td style="padding: 1.25rem 2.5rem;">
+                        <span style="padding: 4px 12px; background: rgba(99, 102, 241, 0.1); color: #6366F1; border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 4px; font-size: 0.6rem; font-weight: 950; text-transform: uppercase; letter-spacing: 1px;">{{ user.plan }}</span>
+                    </td>
+                    <td style="padding: 1.25rem 2.5rem;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: #10B981; font-weight: 900; font-size: 0.7rem;">
+                            <div class="status-dot" style="width: 4px; height: 4px;"></div> HEARTBEAT_NOMINAL
+                        </div>
+                    </td>
+                    <td style="padding: 1.25rem 2.5rem; text-align: right;">
+                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                            <a href="{{ url_for('admin_chat', user_id=user.id) }}" class="btn-action" style="padding: 6px 14px; font-size: 0.65rem; background: #FFF; color: #000; text-decoration: none;">Coordinate</a>
+                            <button class="btn-action" style="padding: 6px 14px; font-size: 0.65rem; background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--cmd-border);" onclick="openWorkoutModal({{ user.id }}, '{{ user.name }}')">Workout</button>
+                            <button class="btn-action" style="padding: 6px 14px; font-size: 0.65rem; background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--cmd-border);" onclick="openNutritionModal({{ user.id }}, '{{ user.name }}', '{{ user.nutrition_goal }}')">Nutrition</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODALS -->
+<div id="workoutModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(20px); z-index:2000; align-items:center; justify-content:center;">
+    <div class="glass-card" style="width: 440px; border-color: rgba(255,255,255,0.1);">
+        <h3 id="workoutModalTitle" style="font-family: var(--font-header); font-size: 1.5rem; text-transform: uppercase; margin-bottom: 0.5rem;">Assign Protocol</h3>
+        <p style="font-size: 0.75rem; color: var(--cmd-dim); margin-bottom: 2rem; font-weight: 700; letter-spacing: 1px;">REMOTE_PROTOCOL_INITIALIZATION</p>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Muscle Focus</label>
+            <select id="workoutMuscle" style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                <option>Chest</option><option>Back</option><option>Legs</option><option>Shoulders</option><option>Arms</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Training Style</label>
+            <select id="workoutType" style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                <option>Compound</option><option>Superset</option><option>Drop Sets</option>
+            </select>
+        </div>
+
+        <div style="display:flex; gap: 10px; margin-top: 2rem;">
+            <button class="btn-action" style="flex:1; background: #FFF; color: #000;" onclick="submitWorkout()">Deploy</button>
+            <button class="btn-action" style="flex:1; background: transparent; border: 1px solid var(--cmd-border); color: #FFF;" onclick="closeModal('workoutModal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="nutritionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(20px); z-index:2000; align-items:center; justify-content:center;">
+    <div class="glass-card" style="width: 440px; border-color: rgba(255,255,255,0.1);">
+        <h3 id="nutritionModalTitle" style="font-family: var(--font-header); font-size: 1.5rem; text-transform: uppercase; margin-bottom: 0.5rem;">Nutrition Control</h3>
+        <p style="font-size: 0.75rem; color: var(--cmd-dim); margin-bottom: 2rem; font-weight: 700; letter-spacing: 1px;">MACRO_CALIBRATION_HANDSHAKE</p>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 8px;">Target Goal</label>
+            <select id="nutritionGoal" style="width:100%; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 14px; border-radius: 12px; font-family: inherit; font-weight: 700;">
+                <option value="Bulk">Bulk 🔼</option><option value="Cut">Cut 🔻</option><option value="Maintain">Maintain ⚖️</option>
+            </select>
+        </div>
+
+        <div style="display:flex; gap: 10px; margin-top: 2rem;">
+            <button class="btn-action" style="flex:1; background: #FFF; color: #000;" onclick="submitNutrition()">Push</button>
+            <button class="btn-action" style="flex:1; background: transparent; border: 1px solid var(--cmd-border); color: #FFF;" onclick="closeModal('nutritionModal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentAthleteId = null;
+
+    function openWorkoutModal(id, name) {
+        currentAthleteId = id;
+        document.getElementById('workoutModalTitle').innerText = `Assign ${name}`;
+        document.getElementById('workoutModal').style.display = 'flex';
+    }
+
+    function openNutritionModal(id, name, currentGoal) {
+        currentAthleteId = id;
+        document.getElementById('nutritionModalTitle').innerText = `${name} Protocol`;
+        document.getElementById('nutritionGoal').value = currentGoal || 'Maintain';
+        document.getElementById('nutritionModal').style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    async function submitWorkout() {
+        const workout = {
+            muscle: document.getElementById('workoutMuscle').value,
+            type: document.getElementById('workoutType').value,
+            duration: 60
+        };
+        const res = await fetch('/admin/assign_workout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentAthleteId, workout: workout })
+        });
+        if (res.ok) {
+            closeModal('workoutModal');
+            window.location.reload();
+        }
+    }
+
+    async function submitNutrition() {
+        const goal = document.getElementById('nutritionGoal').value;
+        const res = await fetch('/admin/modify_nutrition', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentAthleteId, goal: goal })
+        });
+        if (res.ok) {
+            closeModal('nutritionModal');
+            window.location.reload();
+        }
+    }
+
+    // Close modals on outside click
+    window.onclick = function(event) {
+        if (event.target.className === 'modal-overlay' || event.target.id === 'workoutModal' || event.target.id === 'nutritionModal') {
+            closeModal('workoutModal');
+            closeModal('nutritionModal');
+        }
+    }
+</script>
+{% endblock %}

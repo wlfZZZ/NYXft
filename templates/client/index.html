@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYXFT | WHERE CODE MEETS PERFORMANCE</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;700;900&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FFFFFF;
+            --text: #000000;
+            --text-dim: #636366;
+            --accent: #007AFF;
+            --grid: rgba(0,0,0,0.03);
+            --border: #F2F2F7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* ════ BACKGROUND ARCHITECTURE ════ */
+        .system-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(var(--grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 100px 100px;
+            z-index: -1;
+        }
+
+        /* ════ PERFORMANCE TICKER ════ */
+        .perf-ticker {
+            position: fixed;
+            top: 72px; width: 100%;
+            background: #000;
+            color: #fff;
+            padding: 8px 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 999;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ticker-content {
+            display: inline-block;
+            animation: tickerMove 30s linear infinite;
+        }
+
+        @keyframes tickerMove {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ════ NAVBAR ════ */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            padding: 1.25rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px);
+            z-index: 1001;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo { font-family: 'Archivo Black', sans-serif; font-size: 1.5rem; letter-spacing: -2px; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ════ HERO ════ */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5%;
+            position: relative;
+        }
+
+        .hero-tagline {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: clamp(2.5rem, 9vw, 6rem);
+            line-height: 1;
+            letter-spacing: -3px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .hero-subtext {
+            max-width: 650px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+        }
+
+        .btn-cta {
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-cta:hover { transform: translateY(-5px); background: var(--accent); }
+
+        .system-hud-data {
+            position: absolute;
+            bottom: 4rem; right: 5%;
+            text-align: right;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+
+        /* ════ FEATURES ════ */
+        .feature-matrix {
+            padding: 10rem 10%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .module-card {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 3rem;
+            border-radius: 32px;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--accent); opacity: 0; transition: 0.3s;
+        }
+
+        .module-card:hover { transform: translateY(-10px); border-color: #000; }
+        .module-card:hover::before { opacity: 1; }
+
+        .mod-tag { font-size: 0.6rem; font-weight: 900; color: var(--accent); letter-spacing: 2px; margin-bottom: 1rem; display: block; }
+        .mod-title { font-family: 'Archivo Black', sans-serif; font-size: 1.2rem; margin-bottom: 1rem; text-transform: uppercase; }
+        .mod-desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
+
+        /* ════ FOOTER ════ */
+        footer {
+            background: #000;
+            color: #fff;
+            padding: 5rem 10% 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+            text-align: left;
+        }
+
+        .footer-brand .logo { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .footer-slogan { font-size: 0.65rem; font-weight: 800; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+
+        .footer-col h4 { font-family: 'Archivo Black', sans-serif; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: #FFF; text-transform: uppercase; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 0.75rem; }
+        .footer-col ul li a { text-decoration: none; color: var(--text-dim); font-size: 0.75rem; font-weight: 700; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-col ul li a:hover { color: #FFF; }
+
+        .footer-divider { height: 1px; background: rgba(255,255,255,0.1); margin-bottom: 2rem; }
+
+        .footer-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .social-circle-list { display: flex; gap: 1rem; }
+        .social-circle {
+            width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: #FFF; transition: 0.3s; cursor: pointer;
+        }
+        .social-circle:hover { background: #FFF; color: #000; border-color: #FFF; }
+
+        .copyright { font-size: 0.65rem; font-weight: 700; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+
+    </style>
+</head>
+<body>
+
+    <div class="system-grid"></div>
+
+    <nav>
+        <div class="logo">NYXFT</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            {% if user %}
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="javascript:void(0)" id="logoutBtn">Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth') }}">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="perf-ticker">
+        <div class="ticker-content">
+            TOTAL VOLUME MOVED: 1,420,512 KG // GLOBAL CONSISTENCY: 89.4% // ACTIVE PROTOCOLS: 4,210 // BIOMETRIC SYNC: NOMINAL // SYSTEM VERSION: 2.1.0-STABLE // 
+            TOTAL VOLUME MOVED: 1,420,512 KG // GLOBAL CONSISTENCY: 89.4% // ACTIVE PROTOCOLS: 4,210 // BIOMETRIC SYNC: NOMINAL // SYSTEM VERSION: 2.1.0-STABLE // 
+        </div>
+    </div>
+
+    <header class="hero">
+        <h1 class="hero-tagline">WHERE CODE<br>MEETS PERFORMANCE</h1>
+        <p class="hero-subtext">
+            The ultimate structured fitness operating system. Integrate training, nutrition, and biometrics into a single unified framework for measurable excellence.
+        </p>
+        <a href="{{ url_for('auth') if not user else url_for('dashboard') }}" class="btn-cta">
+            {{ 'Enter System' if not user else 'Open Dashboard' }} <i class="ph-bold ph-arrow-right"></i>
+        </a>
+
+        <div class="system-hud-data">
+            SECTOR: HOME // NODE: 0x2A4<br>
+            TIME: <span id="sysTime">00:00:00</span>
+        </div>
+    </header>
+
+    <section class="feature-matrix">
+        <div class="module-card">
+            <span class="mod-tag">[MOD-ALPHA]</span>
+            <h3 class="mod-title">PR ARCHIVE</h3>
+            <p class="mod-desc">Surgical tracking of strength progression across all major protocols.</p>
+        </div>
+        <div class="module-card">
+            <span class="mod-tag">[MOD-BETA]</span>
+            <h3 class="mod-title">BIOMETRIC GRID</h3>
+            <p class="mod-desc">Visual evolution mapping of your biological mass and composition trends.</p>
+        </div>
+        <div class="module-card">
+            <span class="mod-tag">[MOD-GAMMA]</span>
+            <h3 class="mod-title">FUEL LOGIC</h3>
+            <p class="mod-desc">Algorithmic nutrition tracking calibrated to your active tactical goals.</p>
+        </div>
+        <div class="module-card">
+            <span class="mod-tag">[MOD-DELTA]</span>
+            <h3 class="mod-title">COMMAND HUB</h3>
+            <p class="mod-desc">Centralized oversight of all movement, consistency, and daily execution.</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="logo">NYXFT</div>
+                <div class="footer-slogan">The Performance Operating System</div>
+            </div>
+            <div class="footer-col">
+                <h4>Training</h4>
+                <ul>
+                    <li><a href="#">Workout DB</a></li>
+                    <li><a href="#">PR Tracker</a></li>
+                    <li><a href="#">Training Styles</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Fuel</h4>
+                <ul>
+                    <li><a href="#">Nutrition OS</a></li>
+                    <li><a href="#">Food Database</a></li>
+                    <li><a href="#">Supp Sync</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>System</h4>
+                <ul>
+                    <li><a href="#">Command Hub</a></li>
+                    <li><a href="#">Biometric Grid</a></li>
+                    <li><a href="#">Activity Feed</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About NYX</a></li>
+                    <li><a href="#">Mission</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <div class="social-circle-list">
+                <div class="social-circle"><i class="ph-fill ph-whatsapp-logo"></i></div>
+                <div class="social-circle"><i class="ph-fill ph-instagram-logo"></i></div>
+                <div class="social-circle"><i class="ph-fill ph-youtube-logo"></i></div>
+            </div>
+            <div class="copyright">© 2026 NYXFT. All rights reserved. // System Version 2.1.0</div>
+        </div>
+    </footer>
+
+    <script>
+        // System Time
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('sysTime').innerText = now.toTimeString().split(' ')[0];
+        }, 1000);
+
+        // Logout
+        const lbtn = document.getElementById('logoutBtn');
+        if (lbtn) {
+            lbtn.onclick = async () => {
+                await fetch('/api/logout', { method: 'POST' });
+                location.reload();
+            };
+        }
+    </script>
+</body>
+</html>

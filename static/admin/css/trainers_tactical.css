@@ -1,0 +1,264 @@
+/* ═══════════════════════════════════════════════
+   NYX TRAINER NEXUS V3 — TALENT ARCHITECTURE
+   Aesthetic: Studio Clean / Kinetic High-Density
+   ═══════════════════════════════════════════════ */
+
+:root {
+    --tn-accent: #00b860;
+    --tn-border: #f1f5f9;
+    --tn-bg-alt: #f8fafc;
+    --tn-text-main: #0f172a;
+    --tn-text-dim: #64748b;
+    --tn-radius: 16px;
+}
+
+/* ── LAYOUT GRID ── */
+.tn-command-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr 360px;
+    height: 100vh;
+    width: 100%;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* ── WING SHARED ── */
+.tn-wing {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── LEFT WING: SCANNER ── */
+.tn-wing.left {
+    background: var(--tn-bg-alt);
+    border-right: 1px solid var(--tn-border);
+    padding: 2.5rem 1.5rem;
+    gap: 2.5rem;
+}
+
+.tn-header-mini {
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--tn-text-dim);
+}
+
+.tn-module {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tn-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--tn-text-dim);
+    text-transform: uppercase;
+}
+
+.tn-v-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tn-v-btn {
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--tn-text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tn-v-btn:hover { background: rgba(0,0,0,0.03); color: var(--tn-text-main); }
+.tn-v-btn.active { background: #fff; border-color: var(--tn-border); color: var(--tn-text-main); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+.tn-status-box {
+    background: #fff;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--tn-border);
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+.status-row:last-child { margin-bottom: 0; }
+.status-row b { color: var(--tn-accent); }
+
+/* ── CENTER WING: FEED ── */
+.tn-wing.center { background: #fff; }
+
+.tn-feed-head {
+    padding: 2.5rem 3rem;
+    border-bottom: 1px solid var(--tn-border);
+}
+
+.tn-main-title {
+    font-size: 2rem;
+    font-weight: 950;
+    letter-spacing: -1.5px;
+    margin-bottom: 2rem;
+}
+
+.tn-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--tn-bg-alt);
+    padding: 0 20px;
+    border-radius: 14px;
+    border: 1px solid var(--tn-border);
+}
+
+.tn-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 16px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+.tn-search-input:focus { outline: none; }
+
+.tn-dossier-feed {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2.5rem 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+/* Dossier Card */
+.tn-dossier-card {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid var(--tn-border);
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.tn-dossier-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+    border-color: #000;
+}
+
+.tn-avatar-wrap {
+    width: 100px;
+    height: 100px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--tn-bg-alt);
+    flex-shrink: 0;
+}
+
+.tn-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+.tn-card-info { flex: 1; display: flex; flex-direction: column; }
+.tn-type { font-size: 0.55rem; font-weight: 950; color: var(--tn-accent); letter-spacing: 1px; margin-bottom: 4px; }
+.tn-name { font-size: 1.1rem; font-weight: 900; margin: 0 0 4px; }
+.tn-specialty { font-size: 0.75rem; color: var(--tn-text-dim); font-weight: 600; line-height: 1.4; margin-bottom: 1rem; }
+
+.tn-card-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tn-exp { font-size: 0.6rem; font-weight: 900; color: var(--tn-text-dim); text-transform: uppercase; }
+
+.tn-view-btn {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #000;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+.tn-view-btn:hover { color: var(--tn-accent); }
+
+/* ── RIGHT WING: MISSION INTEL ── */
+.tn-wing.right {
+    background: #fff;
+    border-left: 1px solid var(--tn-border);
+}
+
+.tn-lab-head { padding: 2.5rem 2rem 1.5rem; }
+.tn-lab-title { font-size: 0.75rem; font-weight: 950; color: var(--tn-text-main); }
+
+.tn-intel-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.tn-intel-card {
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--tn-border);
+    display: flex;
+    gap: 16px;
+}
+
+.tn-intel-card.primary {
+    background: var(--tn-text-main);
+    color: #fff;
+    flex-direction: column;
+    border: none;
+}
+
+.tn-intel-card.primary i { font-size: 2rem; color: var(--tn-accent); }
+.tn-intel-card.primary h4 { font-size: 0.85rem; font-weight: 900; margin: 0 0 8px; }
+.tn-intel-card.primary p { font-size: 0.75rem; line-height: 1.5; opacity: 0.8; }
+
+.tn-intel-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--tn-bg-alt);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.tn-intel-icon i { font-size: 1.1rem; color: var(--tn-text-main); }
+
+.tn-intel-body h5 { font-size: 0.75rem; font-weight: 900; margin: 0 0 4px; }
+.tn-intel-body p { font-size: 0.7rem; color: var(--tn-text-dim); line-height: 1.4; }
+
+.tn-footer-intel {
+    padding: 2rem;
+    border-top: 1px solid var(--tn-border);
+}
+
+.tn-tip {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--tn-text-dim);
+    line-height: 1.5;
+    background: var(--tn-bg-alt);
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.tn-tip i { color: var(--tn-accent); margin-right: 4px; }

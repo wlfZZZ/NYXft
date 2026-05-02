@@ -1,0 +1,164 @@
+/* ══════════════════════════════════════════
+   NYX ANALYTICS — TACTICAL DATA STREAM CSS
+   ══════════════════════════════════════════ */
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(320px, auto);
+    gap: 1.5rem;
+    padding-bottom: 2.5rem;
+}
+
+.ana-card {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 1.75rem 2rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255,255,255,0.8);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.ana-card.span-2 { grid-column: span 2; }
+
+.ana-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.ana-card-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--text-pure);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ana-card-title i { color: var(--accent); font-size: 1.1rem; }
+
+.ana-card-opt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+.chart-container {
+    flex: 1;
+    position: relative;
+    min-height: 200px;
+}
+
+/* ── LOCKED STATE ── */
+.ana-card.is-locked {
+    filter: grayscale(0.5);
+    background: #f8fafc;
+}
+
+.lock-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(6px);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.lock-overlay i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.lock-overlay h3 {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.lock-overlay p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin: 8px 0 1.5rem;
+    max-width: 200px;
+}
+
+.upgrade-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -5px rgba(15, 23, 42, 0.4);
+    transition: all 0.2s;
+}
+.upgrade-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -8px rgba(15, 23, 42, 0.5); }
+.upgrade-btn.gold { background: #ca8a04; box-shadow: 0 8px 20px -5px rgba(161, 98, 7, 0.4); }
+
+/* ── PREDICTIVE UI ── */
+.predictive-body { display: flex; flex-direction: column; gap: 2rem; flex: 1; justify-content: center; }
+.eta-box { text-align: center; }
+.eta-label { font-size: 0.8rem; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; }
+.eta-val { font-size: 3.5rem; font-weight: 950; color: var(--primary); letter-spacing: -2px; }
+
+.eta-meta { display: flex; justify-content: center; gap: 2rem; }
+.eta-stat { font-size: 0.85rem; font-weight: 700; color: var(--text-dim); }
+.eta-stat span { color: var(--text-pure); font-weight: 800; }
+
+.predictive-chart-mini {
+    height: 40px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+.p-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60%;
+    height: 4px;
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+    border-radius: 10px;
+}
+
+/* ── HEADER EXTENSIONS ── */
+.analytics-mode {
+    display: flex;
+    background: #fff;
+    padding: 5px;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+.analytics-mode span {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-radius: 10px;
+}
+.analytics-mode span.active { background: #f1f5f9; color: var(--primary); }
+
+.tier-badge { background: #0f172a; color: #fff; }

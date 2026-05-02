@@ -1,0 +1,327 @@
+{% extends "client/base_portal.html" %}
+
+{% block title %}PR Archive | NYXFT Intelligence{% endblock %}
+
+{% set active_page = 'pr_tracker' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --accent-blue: #007AFF;
+        --accent-red: #FF3B30;
+        --accent-black: #000000;
+        --text-dim: #8E8E93;
+        --border-color: #E5E5EA;
+        --bg-canvas: #FFFFFF;
+        --grid-line: rgba(0,0,0,0.02);
+        --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    body {
+        background-color: var(--bg-canvas);
+        height: 100vh;
+        overflow: hidden;
+        color: var(--accent-black);
+    }
+
+    .master-canvas {
+        height: 100vh;
+        padding: 3rem 5rem;
+        background-image: 
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 100px 100px;
+        display: flex;
+        flex-direction: column;
+        animation: canvasEntry 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes canvasEntry {
+        from { opacity: 0; filter: blur(10px); }
+        to { opacity: 1; filter: blur(0); }
+    }
+
+    /* ════ HALL OF POWER: ELITE ALIGNMENT ════ */
+    .hall-header {
+        margin-bottom: 4rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .brand-intel {
+        font-size: 0.55rem;
+        font-weight: 900;
+        letter-spacing: 5px;
+        color: var(--accent-blue);
+        margin-bottom: 0.8rem;
+        text-transform: uppercase;
+    }
+
+    .main-title {
+        font-size: 5rem;
+        font-weight: 900;
+        letter-spacing: -4px;
+        line-height: 0.8;
+        margin: 0;
+    }
+
+    .hero-matrix {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        margin-bottom: 3rem;
+        flex-shrink: 0;
+    }
+
+    .matrix-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 30px;
+        border: 1px solid var(--border-color);
+        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .matrix-card:hover {
+        border-color: var(--accent-black);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.05);
+    }
+
+    .card-label { 
+        font-size: 0.5rem; 
+        font-weight: 900; 
+        color: var(--text-dim); 
+        letter-spacing: 2.5px; 
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-val { 
+        font-size: 4rem; 
+        font-weight: 900; 
+        letter-spacing: -3px; 
+        line-height: 1;
+        display: flex;
+        align-items: baseline;
+    }
+
+    .card-unit { font-size: 0.9rem; color: var(--text-dim); margin-left: 6px; letter-spacing: 0; }
+
+    /* ════ SYNC MODULE: TECHNICAL ALIGNMENT ════ */
+    .sync-module {
+        background: white;
+        padding: 2rem 3rem;
+        border-radius: 30px;
+        border: 2px solid var(--accent-black);
+        margin-bottom: 3.5rem;
+        display: flex;
+        align-items: center;
+        gap: 5rem;
+        flex-shrink: 0;
+        box-shadow: 10px 10px 0 rgba(0,0,0,0.02);
+    }
+
+    .sync-intro { flex: 1; }
+    .sync-intro h3 { font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; margin: 0 0 5px 0; }
+    .sync-intro p { font-size: 0.6rem; font-weight: 900; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin: 0; }
+
+    .sync-controls { flex: 3; display: flex; gap: 2rem; align-items: flex-end; }
+    .input-group { flex: 1; }
+    .input-group label { display: block; font-size: 0.5rem; font-weight: 900; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
+    
+    .technical-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 2.5px solid var(--border-color);
+        font-size: 1.1rem;
+        font-weight: 900;
+        outline: none;
+        padding: 5px 0;
+        transition: 0.3s;
+    }
+    .technical-input:focus { border-color: var(--accent-black); }
+
+    .btn-deploy {
+        background: var(--accent-black);
+        color: white;
+        border: none;
+        padding: 1.2rem 3rem;
+        border-radius: 12px;
+        font-weight: 900;
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .btn-deploy:hover { background: var(--accent-blue); transform: translateY(-2px); }
+
+    /* ════ ARCHIVE SECTION ════ */
+    .archive-view {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 5rem;
+        overflow-y: auto;
+        padding-top: 1rem;
+    }
+
+    .archive-view::-webkit-scrollbar { width: 3px; }
+    .archive-view::-webkit-scrollbar-thumb { background: var(--accent-black); border-radius: 10px; }
+
+    .archive-table { width: 100%; border-collapse: collapse; }
+    .archive-table th { text-align: left; font-size: 0.55rem; font-weight: 900; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; padding-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); }
+    .archive-table td { padding: 2rem 0; border-bottom: 1px solid var(--border-color); }
+
+    .row-name { font-weight: 900; font-size: 1.2rem; letter-spacing: -0.5px; }
+    .row-meta { font-family: 'Courier New', Courier, monospace; font-weight: 900; font-size: 0.9rem; }
+    .pr-badge { background: var(--accent-black); color: white; font-size: 0.5rem; font-weight: 900; padding: 4px 10px; border-radius: 4px; letter-spacing: 1px; }
+
+    .sidebar-widget {
+        background: var(--bg-canvas);
+        border: 1px solid var(--border-color);
+        padding: 2.5rem;
+        border-radius: 30px;
+        margin-bottom: 2rem;
+    }
+    .widget-tag { font-size: 0.5rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 3px; margin-bottom: 1rem; text-transform: uppercase; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="master-canvas">
+    
+    <header class="hall-header">
+        <div>
+            <div class="brand-intel">STRENGTH ARCHIVE // NYXFT.V1</div>
+            <h1 class="main-title">Hall of<br>Power</h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -2px;">{{ total_logs }}</div>
+            <div style="font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;">Sessions Synced</div>
+        </div>
+    </header>
+
+    <!-- ════ HERO MATRIX ════ -->
+    <div class="hero-matrix">
+        {% set big_lifts = [
+            {'name': 'Squat Architecture', 'val': best_squat or 0},
+            {'name': 'Bench Force', 'val': best_bench or 0},
+            {'name': 'Deadlift Payload', 'val': best_deadlift or 0},
+            {'name': 'Overhead Tactical', 'val': best_ohp or 0}
+        ] %}
+        {% for lift in big_lifts %}
+        <div class="matrix-card">
+            <div class="card-label">{{ lift.name }}</div>
+            <div class="card-val">{{ lift.val }}<span class="card-unit">kg</span></div>
+            <div style="margin-top: 1.5rem; height: 3px; width: 30px; background: var(--accent-black);"></div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ════ SYNC MODULE ════ -->
+    <div class="sync-module">
+        <div class="sync-intro">
+            <h3>Record Sync</h3>
+            <p>Deploy New Performance Data</p>
+        </div>
+        <form id="prForm" class="sync-controls">
+            <div class="input-group">
+                <label>Exercise Architecture</label>
+                <input type="text" id="prExercise" class="technical-input" placeholder="e.g. Bench Press" list="exerciseList" required>
+                <datalist id="exerciseList">
+                    <option value="Bench Press">
+                    <option value="Squat">
+                    <option value="Deadlift">
+                    <option value="Overhead Press">
+                </datalist>
+            </div>
+            <div style="width: 100px;">
+                <label>Load (KG)</label>
+                <input type="number" id="prWeight" class="technical-input" step="0.5" required>
+            </div>
+            <div style="width: 80px;">
+                <label>Reps</label>
+                <input type="number" id="prReps" class="technical-input" value="1" required>
+            </div>
+            <button type="submit" class="btn-deploy">DEPLOY RECORD</button>
+        </form>
+    </div>
+
+    <!-- ════ ARCHIVE VIEW ════ -->
+    <div class="archive-view">
+        <div class="archive-main">
+            <table class="archive-table">
+                <thead>
+                    <tr>
+                        <th>Archive Date</th>
+                        <th>Architecture</th>
+                        <th>Performance Load</th>
+                        <th>Reps</th>
+                        <th>System Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pr in prs %}
+                    <tr class="record-row">
+                        <td class="row-meta">{{ pr.date }}</td>
+                        <td class="row-name">{{ pr.exercise }}</td>
+                        <td class="row-meta">{{ pr.weight }} KG</td>
+                        <td class="row-meta">{{ pr.reps }}</td>
+                        <td>
+                            {% if pr.is_pr %}
+                            <span class="pr-badge">NEW RECORD</span>
+                            {% else %}
+                            <span style="font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 1.5px;">LOGGED</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="archive-sidebar">
+            <div class="sidebar-widget">
+                <div class="widget-tag">Neural Insights</div>
+                <div style="font-weight: 900; font-size: 1.5rem; letter-spacing: -1px; line-height: 1.1; margin-bottom: 1rem;">Adaptation Velocity Positive</div>
+                <p style="color: var(--text-dim); font-size: 0.75rem; line-height: 1.6;">Your multi-joint force output has reached a new threshold. Protocol stability is high. Sustaining current intensity will yield progressive hypertrophic outcomes.</p>
+            </div>
+
+            <div class="sidebar-widget" style="background: var(--accent-black); color: white; border: none;">
+                <div class="widget-tag" style="color: var(--accent-blue);">System Peak</div>
+                <div style="font-size: 4rem; font-weight: 900; letter-spacing: -3px; line-height: 0.9; margin-top: 1rem;">{{ best_lift }}<span style="font-size: 1rem; color: var(--accent-blue); margin-left: 10px;">KG</span></div>
+                <div style="font-size: 0.5rem; font-weight: 900; opacity: 0.4; letter-spacing: 2px; margin-top: 1.5rem; text-transform: uppercase;">Absolute Force Record</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('prForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            exercise: document.getElementById('prExercise').value,
+            weight: document.getElementById('prWeight').value,
+            reps: document.getElementById('prReps').value
+        };
+
+        const res = await fetch('/api/pr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+            location.reload();
+        }
+    });
+</script>
+{% endblock %}

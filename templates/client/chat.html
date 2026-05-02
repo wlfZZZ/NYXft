@@ -1,0 +1,238 @@
+{% extends "client/base_portal.html" %}
+
+{% block title %}Communications Uplink | NYXFT{% endblock %}
+
+{% set active_page = 'chat' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --bg-portal: #FFFFFF;
+        --accent-blue: #007AFF;
+        --accent-black: #000000;
+        --text-dim: #8E8E93;
+        --border-subtle: rgba(0,0,0,0.05);
+    }
+
+    .chat-container {
+        height: calc(100vh - 100px);
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-portal);
+        max-width: 900px;
+        margin: 0 auto;
+        border: 1px solid var(--border-subtle);
+        border-radius: 32px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.03);
+    }
+
+    /* ── HEADER ── */
+    .chat-header {
+        padding: 1.5rem 2.5rem;
+        background: #fff;
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .coach-badge {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .coach-status {
+        width: 8px; height: 8px; background: #34C759; border-radius: 50%;
+        box-shadow: 0 0 10px #34C759;
+    }
+
+    .coach-name {
+        font-family: 'Archivo Black', sans-serif;
+        font-size: 1rem;
+        letter-spacing: -0.5px;
+        text-transform: uppercase;
+    }
+
+    /* ── STREAM ── */
+    .chat-stream {
+        flex: 1;
+        padding: 2.5rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        background: #FAFAFA;
+    }
+
+    .msg-bubble {
+        max-width: 75%;
+        padding: 1.25rem 1.5rem;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        font-weight: 500;
+    }
+
+    .msg-bubble.coach {
+        align-self: flex-start;
+        background: #fff;
+        color: var(--accent-black);
+        border: 1px solid var(--border-subtle);
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    .msg-bubble.athlete {
+        align-self: flex-end;
+        background: var(--accent-black);
+        color: #fff;
+        border-bottom-right-radius: 4px;
+    }
+
+    .msg-label {
+        font-size: 0.6rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+        display: block;
+        opacity: 0.5;
+    }
+
+    /* ── INPUT ── */
+    .chat-input-area {
+        padding: 1.5rem 2.5rem;
+        background: #fff;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        gap: 15px;
+    }
+
+    .chat-input {
+        flex: 1;
+        background: #F2F2F7;
+        border: none;
+        border-radius: 14px;
+        padding: 1rem 1.5rem;
+        font-family: inherit;
+        font-weight: 600;
+        outline: none;
+    }
+
+    .btn-send {
+        background: var(--accent-black);
+        color: #fff;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-send:hover { transform: scale(1.05); background: var(--accent-blue); }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    
+    <header class="chat-header">
+        <div class="coach-badge">
+            <div class="coach-status"></div>
+            <span class="coach-name">Admin Command Hub</span>
+        </div>
+        <div style="font-size: 0.65rem; font-weight: 900; color: var(--text-dim); letter-spacing: 2px;">SECURE SIGNAL ACTIVE</div>
+    </header>
+
+    <div class="chat-stream" id="chatStream">
+        <div class="msg-bubble coach">
+            <span class="msg-label">COMMAND UPLINK</span>
+            Welcome to the secure communications terminal. You can use this channel to receive protocol updates and technical guidance directly from the oversight team.
+        </div>
+        
+        <div class="msg-bubble athlete">
+            <span class="msg-label">ATHLETE SIGNAL</span>
+            Understood. Ready for calibration.
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" class="chat-input" id="msgInput" placeholder="Message Admin Hub...">
+        <button class="btn-send">
+            <i class="ph-bold ph-paper-plane-right"></i>
+        </button>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const msgInput = document.getElementById('msgInput');
+        const chatStream = document.getElementById('chatStream');
+        const sendBtn = document.querySelector('.btn-send');
+        const userId = {{ user.id }};
+
+        // --- FETCH HISTORY ---
+        async function loadHistory() {
+            const res = await fetch(`/api/chat/history/${userId}`);
+            const data = await res.json();
+            
+            if (chatStream.children.length !== data.length) {
+                chatStream.innerHTML = '';
+                data.forEach(m => {
+                    const msg = document.createElement('div');
+                    msg.className = `msg-bubble ${m.sender === 'athlete' ? 'athlete' : 'coach'}`;
+                    msg.innerHTML = `
+                        <span class="msg-label">${m.sender === 'athlete' ? 'ATHLETE SIGNAL' : 'COMMAND UPLINK'}</span>
+                        ${m.content}
+                    `;
+                    chatStream.appendChild(msg);
+                });
+                chatStream.scrollTop = chatStream.scrollHeight;
+            }
+        }
+
+        // --- SEND SIGNAL ---
+        const sendSignal = async () => {
+            const val = msgInput.value.trim();
+            if (!val) return;
+
+            const res = await fetch('/api/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId,
+                    content: val,
+                    sender: 'athlete'
+                })
+            });
+
+            if (res.ok) {
+                msgInput.value = '';
+                loadHistory();
+            }
+        };
+
+        // --- POLLING ---
+        setInterval(loadHistory, 3000);
+
+        // Initial Load
+        loadHistory();
+
+        sendBtn.addEventListener('click', sendSignal);
+        msgInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendSignal();
+        });
+    });
+</script>
+{% endblock %}

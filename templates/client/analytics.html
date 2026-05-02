@@ -1,0 +1,330 @@
+{% extends "client/base_portal.html" %}
+
+{% block title %}Signal Analytics | NYXFT Intelligence{% endblock %}
+
+{% set active_page = 'analytics' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --accent-blue: #007AFF;
+        --accent-green: #32D74B;
+        --accent-red: #FF3B30;
+        --accent-black: #000000;
+        --text-dim: #8E8E93;
+        --border-color: #E5E5EA;
+        --bg-canvas: #FFFFFF;
+        --grid-line: rgba(0,0,0,0.02);
+    }
+
+    body {
+        background-color: var(--bg-canvas);
+        height: 100vh;
+        overflow: hidden;
+        color: var(--accent-black);
+    }
+
+    .analytics-frame {
+        height: 100vh;
+        padding: 2rem 4rem;
+        background-image: 
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 100px 100px;
+        display: flex;
+        flex-direction: column;
+        animation: frameEntry 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes frameEntry {
+        from { opacity: 0; transform: scale(0.98); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ════ COMPACT HEADER ════ */
+    .tactical-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .brand-tag { font-size: 0.5rem; font-weight: 900; letter-spacing: 4px; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .main-title { font-size: 3.5rem; font-weight: 900; letter-spacing: -3px; line-height: 0.8; margin: 0; }
+
+    /* ════ CORE METRICS STRIP ════ */
+    .metrics-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-shrink: 0;
+    }
+
+    .metric-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        transition: 0.3s;
+    }
+    .metric-card:hover { border-color: var(--accent-black); transform: translateY(-3px); }
+    .met-label { font-size: 0.45rem; font-weight: 900; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.8rem; }
+    .met-val { font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+
+    /* ════ COMPACT ANALYTICS ENGINE ════ */
+    .analytics-engine {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        gap: 2rem;
+        min-height: 0;
+    }
+
+    .canvas-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1.2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .chart-canvas {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 24px;
+        padding: 1.8rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .canvas-title { font-size: 0.55rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.2rem; color: var(--accent-black); }
+    .chart-container { flex: 1; min-height: 0; position: relative; }
+
+    /* ════ SIDEBAR INTELLIGENCE ════ */
+    .intel-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+    
+    .widget-box {
+        background: var(--bg-canvas);
+        border: 1px solid var(--border-color);
+        padding: 1.8rem;
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .eta-box { text-align: center; background: var(--accent-black); color: white; border: none; height: 180px; flex-shrink: 0; }
+    .eta-label { font-size: 0.45rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 1rem; }
+    .eta-val { font-size: 2.5rem; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 0.5rem; }
+
+    /* ════ PREMIUM OVERLAYS ════ */
+    .is-locked { position: relative; overflow: hidden; }
+    .lock-shield {
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(8px);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1rem;
+    }
+    .lock-shield i { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .lock-shield h4 { font-weight: 900; font-size: 0.65rem; letter-spacing: 1px; margin-bottom: 0.2rem; }
+    .lock-shield p { font-size: 0.55rem; color: var(--text-dim); }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-frame">
+    
+    <header class="tactical-header">
+        <div>
+            <div class="brand-tag">TACTICAL DATA STREAM // NYXFT</div>
+            <h1 class="main-title">Signal Analytics</h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.45rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px;">Adaptive Goals</div>
+            <div style="font-weight: 900; font-size: 1.2rem; letter-spacing: -0.5px;">{{ user.goal }}</div>
+        </div>
+    </header>
+
+    <!-- ════ METRICS STRIP ════ -->
+    <div class="metrics-strip">
+        <div class="metric-card">
+            <div class="met-label">Body Mass Trend</div>
+            <div class="met-val">{{ weight_history[-1] if weight_history else user.weight }}<span style="font-size: 0.8rem; color: var(--text-dim); margin-left: 5px;">KG</span></div>
+        </div>
+        <div class="metric-card">
+            <div class="met-label">Activity Density</div>
+            <div class="met-val">{{ step_history[-1] if step_history else 0 }}<span style="font-size: 0.8rem; color: var(--text-dim); margin-left: 5px;">STEPS</span></div>
+        </div>
+        <div class="metric-card">
+            <div class="met-label">Consistency Pulse</div>
+            <div class="met-val">{{ (consistency_data|sum / consistency_data|length * 100)|round|int if consistency_data else 0 }}<span style="font-size: 0.8rem; color: var(--text-dim); margin-left: 5px;">%</span></div>
+        </div>
+        <div class="metric-card">
+            <div class="met-label">Neural Status</div>
+            <div class="met-val" style="color: var(--accent-green); font-size: 1.5rem;">OPTIMAL</div>
+        </div>
+    </div>
+
+    <!-- ════ COMPACT ANALYTICS ENGINE ════ -->
+    <div class="analytics-engine">
+        
+        <div class="canvas-grid">
+            <div class="chart-canvas">
+                <div class="canvas-title">Mass Trajectory Archive</div>
+                <div class="chart-container">
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-canvas">
+                <div class="canvas-title">Step Volumetric Engine</div>
+                <div class="chart-container">
+                    <canvas id="stepChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-canvas is-locked" style="grid-column: span 2;">
+                <div class="canvas-title">Correlative Efficiency Matrix</div>
+                <div class="chart-container">
+                    <canvas id="correlationChart"></canvas>
+                </div>
+                {% if user.plan in ['Starter', 'Pro'] %}
+                <div class="lock-shield">
+                    <i class="ph-fill ph-lock-key"></i>
+                    <h4>ELITE ARCHITECTURE REQUIRED</h4>
+                    <p>Upgrade to unlock activity-to-mass correlation analysis.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="intel-sidebar">
+            <div class="widget-box eta-box">
+                <div class="eta-label">Predictive Arrival</div>
+                <div class="eta-val">{{ eta_days }}</div>
+                <div style="font-size: 0.45rem; font-weight: 900; opacity: 0.4; text-transform: uppercase; letter-spacing: 1px;">Completion Protocol</div>
+            </div>
+
+            <div class="widget-box is-locked" style="flex: 1;">
+                <div class="canvas-title">Strength Radar</div>
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                {% if user.plan == 'Starter' %}
+                <div class="lock-shield">
+                    <i class="ph-fill ph-lock-key"></i>
+                    <h4>PRO MODE</h4>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="widget-box" style="background: var(--bg-subtle); flex: 0.8;">
+                <div class="canvas-title">AI Insights</div>
+                <div style="font-weight: 900; font-size: 0.8rem; letter-spacing: -0.5px; line-height: 1.4;">Efficiency Threshold High</div>
+                <p style="color: var(--text-dim); font-size: 0.65rem; line-height: 1.5; margin-top: 0.5rem;">Mass-to-Activity synchronization is optimal.</p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- DATA FOR JS -->
+<script id="analytics-data" type="application/json">
+{
+    "labels": {{ labels|tojson }},
+    "weight": {{ weight_history|tojson }},
+    "steps": {{ step_history|tojson }},
+    "volume": {{ volume|tojson }},
+    "consistency": {{ consistency_data|tojson }}
+}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const rawData = JSON.parse(document.getElementById('analytics-data').textContent);
+
+    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    Chart.defaults.color = '#8E8E93';
+
+    const weightCtx = document.getElementById('weightChart').getContext('2d');
+    new Chart(weightCtx, {
+        type: 'line',
+        data: {
+            labels: rawData.labels,
+            datasets: [{
+                label: 'Weight',
+                data: rawData.weight,
+                borderColor: '#000',
+                borderWidth: 2.5,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: false
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: false },
+                y: { grid: { color: '#F2F2F7' }, ticks: { font: { size: 9 } } }
+            }
+        }
+    });
+
+    const stepCtx = document.getElementById('stepChart').getContext('2d');
+    new Chart(stepCtx, {
+        type: 'bar',
+        data: {
+            labels: rawData.labels,
+            datasets: [{
+                data: rawData.steps,
+                backgroundColor: '#007AFF',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: false },
+                y: { display: false }
+            }
+        }
+    });
+
+    if (document.getElementById('radarChart')) {
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Push', 'Pull', 'Legs'],
+                datasets: [{
+                    data: [rawData.volume.Push, rawData.volume.Pull, rawData.volume.Legs],
+                    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                    borderColor: '#007AFF',
+                    borderWidth: 1.5
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    r: { grid: { color: '#F2F2F7' }, ticks: { display: false }, pointLabels: { font: { weight: '900', size: 8 } } }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

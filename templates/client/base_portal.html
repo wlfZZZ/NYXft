@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NYX Portal{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='client/css/style.css') }}">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            background: var(--bg);
+        }
+        .dash-layout {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        .dash-main {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            background-color: var(--bg);
+            padding-bottom: 4rem; /* Safe area for scrolling */
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div id="toastContainer" class="toast-container"></div>
+    <div class="portal-wrapper">
+        <div class="sidebar-toggle" id="sidebarToggle">
+            <i class="ph-bold ph-sidebar-simple"></i>
+        </div>
+
+        <!-- ════ WHITE MINIMAL SIDEBAR ════ -->
+        <div class="dash-sidebar">
+            <a href="{{ url_for('index') }}" class="brand-logo" style="margin-bottom: 2rem;">
+                <span class="nyx">NYX</span><span class="ft">FT</span>
+            </a>
+            
+            <div class="sidebar-label">Navigation</div>
+            <div class="dash-nav">
+                <a href="{{ url_for('dashboard') }}" class="{{ 'active' if active_page == 'dashboard' }}">
+                    <i class="ph ph-squares-four nav-icon"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('workouts') }}" class="{{ 'active' if active_page == 'workouts' }}">
+                    <i class="ph ph-barbell nav-icon"></i>
+                    <span>Workouts</span>
+                </a>
+                <a href="{{ url_for('nutrition') }}" class="{{ 'active' if active_page == 'nutrition' }}">
+                    <i class="ph ph-fork-knife nav-icon"></i>
+                    <span>Diet & Nutrition</span>
+                </a>
+                <a href="{{ url_for('coaches') }}" class="{{ 'active' if active_page == 'coaches' }}">
+                    <i class="ph ph-users nav-icon"></i>
+                    <span>Coaches</span>
+                </a>
+                <a href="{{ url_for('analytics') }}" class="{{ 'active' if active_page == 'analytics' }}">
+                    <i class="ph ph-chart-line-up nav-icon"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="{{ url_for('pr_tracker') }}" class="{{ 'active' if active_page == 'pr_tracker' }}">
+                    <i class="ph ph-barbell nav-icon"></i>
+                    <span>PR Tracker</span>
+                </a>
+
+            </div>
+
+            <div class="sidebar-label">System</div>
+            <div class="sidebar-footer">
+                <a href="{{ url_for('settings') }}" class="action-pill {% if active_page == 'settings' %}active{% endif %}"><i class="ph ph-gear nav-icon"></i> <span>Settings</span></a>
+                <div class="sidebar-separator"></div>
+                <a href="javascript:void(0)" id="dashLogout" class="action-pill logout logout-action"><i class="ph ph-sign-out nav-icon"></i> <span>Log out</span></a>
+            </div>
+        </div>
+
+        <!-- ════ MAIN CONTENT ════ -->
+        <div class="dash-main">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="{{ url_for('static', filename='client/js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,247 @@
+{% extends "client/base.html" %}
+
+{% block title %}Protocol Access | NYX Performance OS{% endblock %}
+
+{% set active_page = 'auth' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --bg-canvas: #FFFFFF;
+        --accent-blue: #007AFF;
+        --accent-black: #000000;
+        --text-dim: #8E8E93;
+        --border-color: rgba(0,0,0,0.08);
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --grid-line: rgba(0,0,0,0.02);
+    }
+
+    body {
+        background-color: var(--bg-canvas);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ════ BACKGROUND ARCHITECTURE ════ */
+    .auth-environment {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background-image: 
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 100px 100px;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bg-monolith {
+        position: absolute;
+        font-family: 'Archivo Black', sans-serif;
+        font-size: 20vw;
+        letter-spacing: -1vw;
+        color: rgba(0,0,0,0.02);
+        user-select: none;
+        pointer-events: none;
+        text-transform: uppercase;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    /* ════ AUTHORIZATION CARD ════ */
+    .auth-gate {
+        width: 100%;
+        max-width: 440px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(40px) saturate(180%);
+        -webkit-backdrop-filter: blur(40px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 48px;
+        padding: 4rem 3.5rem;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.08);
+        animation: gateEntry 1s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 10;
+    }
+
+    @keyframes gateEntry {
+        from { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(20px); }
+        to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+
+    .auth-header {
+        margin-bottom: 3.5rem;
+        text-align: center;
+    }
+
+    .brand-tag {
+        font-size: 0.6rem;
+        font-weight: 900;
+        letter-spacing: 5px;
+        color: var(--accent-blue);
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+
+    .gate-title {
+        font-family: 'Archivo Black', sans-serif;
+        font-size: 2.2rem;
+        letter-spacing: -2px;
+        margin: 0;
+        text-transform: uppercase;
+    }
+
+    /* ════ FORM ELEMENTS ════ */
+    .input-wrapper { margin-bottom: 2rem; position: relative; }
+    .input-wrapper label {
+        display: block;
+        font-size: 0.55rem;
+        font-weight: 900;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+    }
+
+    .auth-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid var(--border-color);
+        font-size: 1.1rem;
+        font-weight: 700;
+        outline: none;
+        padding: 10px 0;
+        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .auth-input:focus {
+        border-color: var(--accent-black);
+        padding-left: 10px;
+    }
+
+    .btn-authorize {
+        width: 100%;
+        background: var(--accent-black);
+        color: white;
+        border: none;
+        padding: 1.3rem;
+        border-radius: 18px;
+        font-weight: 900;
+        font-size: 0.8rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 2rem;
+    }
+
+    .btn-authorize:hover {
+        background: var(--accent-blue);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,122,255,0.2);
+    }
+
+    .auth-switch {
+        margin-top: 2.5rem;
+        text-align: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-dim);
+    }
+
+    .auth-switch a {
+        color: var(--accent-black);
+        text-decoration: none;
+        border-bottom: 1.5px solid var(--accent-black);
+        padding-bottom: 2px;
+        transition: 0.3s;
+    }
+
+    .auth-switch a:hover { color: var(--accent-blue); border-color: var(--accent-blue); }
+
+    .alert-frame {
+        position: absolute;
+        top: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 2rem;
+        background: var(--accent-black);
+        color: white;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        opacity: 0;
+        transition: 0.4s;
+        z-index: 1000;
+        pointer-events: none;
+    }
+    .alert-frame.visible { opacity: 1; transform: translateX(-50%) translateY(10px); }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-environment">
+    <div class="bg-monolith">{{ 'ACCESS' if mode == 'login' else 'ARCHIVE' }}</div>
+</div>
+
+<div id="alertBox" class="alert-frame"></div>
+
+<div class="auth-gate">
+    <header class="auth-header">
+        <div class="brand-tag">PROTOCOL AUTHORIZATION</div>
+        <h1 class="gate-title">{{ 'System Login' if mode == 'login' else 'System Signup' }}</h1>
+    </header>
+
+    <form id="authForm" data-mode="{{ mode }}">
+        {% if mode == 'signup' %}
+        <div class="input-wrapper">
+            <label>Administrator Identity</label>
+            <input type="text" id="name" class="auth-input" placeholder="Full Name" required>
+        </div>
+        {% endif %}
+
+        <div class="input-wrapper">
+            <label>Communication Uplink (Email)</label>
+            <input type="email" id="email" class="auth-input" placeholder="athlete@nyxft.com" required>
+        </div>
+
+        <div class="input-wrapper">
+            <label>Security Passcode</label>
+            <input type="password" id="password" class="auth-input" placeholder="••••••••" required>
+            {% if mode == 'login' %}
+            <div style="margin-top: 10px; text-align: right;">
+                <a href="{{ url_for('forgot_password') }}" style="font-size: 0.6rem; font-weight: 800; color: var(--text-dim); text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">Forgot Passcode?</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn-authorize">
+            {{ 'Authorize Access' if mode == 'login' else 'Initialize Protocol' }}
+            <i class="ph-bold ph-arrow-right"></i>
+        </button>
+    </form>
+
+    <div class="auth-switch">
+        {% if mode == 'login' %}
+            New Personnel? <a href="{{ url_for('auth', mode='signup') }}">Create Identity</a>
+        {% else %}
+            Authorized already? <a href="{{ url_for('auth', mode='login') }}">Login to Portal</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='client/js/auth.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,32 @@
+# System Files
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Environment and Secrets
+.env
+venv/
+env/
+.venv/
+bin/
+lib/
+include/
+share/
+pyvenv.cfg
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database
+*.db
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log

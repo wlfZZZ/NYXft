@@ -1,0 +1,451 @@
+{% extends "client/base_portal.html" %}
+
+{% block title %}Workout System | NYXFT{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --accent-blue: #007AFF;
+        --accent-green: #32D74B;
+        --accent-red: #FF453A;
+        --accent-black: #000000;
+        --text-dim: #8E8E93;
+        --border-color: #F2F2F7;
+        --bg-primary: #FFFFFF;
+        --bg-subtle: #F5F5F7;
+        --shadow-soft: 0 20px 40px rgba(0,0,0,0.04);
+        --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body { background-color: var(--bg-primary); overflow-x: hidden; }
+
+    .workout-container {
+        padding: 4rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* ════ SYSTEM NAVIGATION ════ */
+    .system-nav {
+        display: flex;
+        gap: 3rem;
+        margin-bottom: 5rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1.5rem;
+    }
+
+    .nav-tab {
+        font-size: 0.8rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+        cursor: pointer;
+        position: relative;
+        transition: var(--transition-smooth);
+    }
+
+    .nav-tab.active { color: var(--accent-black); }
+    .nav-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1.6rem;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--accent-black);
+    }
+
+    /* ════ PPL & SUGGESTION CARDS ════ */
+    .module-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+        animation: slideUp 0.8s var(--transition-smooth);
+    }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    .system-card {
+        background: white;
+        padding: 3rem;
+        border-radius: 40px;
+        transition: var(--transition-smooth);
+        border: 1px solid transparent;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .system-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 40px 80px rgba(0,0,0,0.08);
+    }
+
+    .card-label { font-size: 0.6rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 2px; margin-bottom: 1rem; }
+    .card-title { font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 1rem; }
+    .card-meta { color: var(--text-dim); font-size: 0.85rem; line-height: 1.6; margin-bottom: 2.5rem; }
+
+    .btn-action {
+        background: var(--accent-black);
+        color: white;
+        padding: 1.2rem 2.5rem;
+        border-radius: 100px;
+        font-weight: 900;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+    }
+    .btn-action:hover { transform: scale(1.05); background: var(--accent-blue); }
+
+    /* ════ EXPANDABLE LISTS ════ */
+    .exercise-list {
+        margin-top: 2rem;
+        border-top: 1px solid var(--border-color);
+        padding-top: 2rem;
+        display: none;
+    }
+    .exercise-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0;
+        font-size: 0.85rem;
+        font-weight: 800;
+    }
+    .ex-meta { color: var(--text-dim); font-weight: 500; }
+
+    /* ════ CUSTOM BUILDER ════ */
+    .builder-pane {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .builder-input {
+        width: 100%;
+        padding: 1.5rem;
+        border: none;
+        border-bottom: 2px solid var(--border-color);
+        font-size: 1.5rem;
+        font-weight: 900;
+        outline: none;
+        margin-bottom: 3rem;
+        transition: var(--transition-smooth);
+    }
+    .builder-input:focus { border-color: var(--accent-black); }
+
+    .architect-node {
+        background: var(--bg-subtle);
+        padding: 2rem;
+        border-radius: 24px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        animation: fadeIn 0.4s var(--transition-smooth);
+    }
+
+    /* ════ EXECUTION HUD ════ */
+    .session-hud {
+        position: fixed;
+        inset: 0;
+        background: white;
+        z-index: 2000;
+        display: none;
+        flex-direction: column;
+        padding: 4rem;
+    }
+
+    .hud-header { display: flex; justify-content: space-between; align-items: center; }
+    .hud-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    
+    .large-display { font-size: 6rem; font-weight: 900; letter-spacing: -4px; margin-bottom: 1rem; color: var(--accent-black); }
+    .hud-inputs { display: flex; gap: 4rem; margin-top: 4rem; }
+    .input-box { text-align: center; }
+    .input-box label { font-size: 0.6rem; font-weight: 900; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
+    .input-box input { display: block; width: 150px; background: transparent; border: none; font-size: 4rem; font-weight: 900; outline: none; text-align: center; }
+
+    #systemMessenger {
+        position: fixed;
+        bottom: 3rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--accent-black);
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 900;
+        z-index: 3000;
+        transition: var(--transition-smooth);
+    }
+    #systemMessenger.visible { transform: translateX(-50%) translateY(0); }
+
+    /* ════ ABORT OVERLAY ════ */
+    #abortLayer {
+        position: fixed;
+        inset: 0;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        z-index: 3000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .abort-card { max-width: 400px; width: 100%; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="systemMessenger">SYSTEM READY</div>
+
+<!-- ════ ABORT OVERLAY ════ -->
+<div id="abortLayer">
+    <div class="abort-card">
+        <div style="font-size: 3rem; margin-bottom: 1.5rem;">⚠️</div>
+        <div style="font-weight: 900; font-size: 1.5rem; letter-spacing: -0.5px; margin-bottom: 1rem;">ABORT PROTOCOL?</div>
+        <p style="color: var(--text-dim); font-size: 0.8rem; line-height: 1.6; margin-bottom: 2rem;">Terminating the session now will erase all unsynced performance data from the current architecture.</p>
+        <div style="display: flex; gap: 15px;">
+            <button onclick="document.getElementById('abortLayer').style.display='none'" class="btn-action" style="flex: 1; background: var(--bg-subtle); color: var(--accent-black);">RESUME</button>
+            <button onclick="location.reload()" class="btn-action" style="flex: 1; background: var(--accent-red);">CONFIRM ABORT</button>
+        </div>
+    </div>
+</div>
+
+<div class="workout-container" id="mainSystem">
+    <header>
+        <div style="font-size: 0.6rem; font-weight: 900; letter-spacing: 4px; color: var(--accent-blue); margin-bottom: 1rem;">PERFORMANCE INTELLIGENCE</div>
+        <h1 style="font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; margin-bottom: 4rem;">Workout<br>Ecosystem</h1>
+    </header>
+
+    <nav class="system-nav">
+        <div class="nav-tab active" onclick="switchView('ppl')">PPL Architecture</div>
+        <div class="nav-tab" onclick="switchView('custom')">Custom Architect</div>
+        <div class="nav-tab" onclick="switchView('smart')">Smart Intelligence</div>
+    </nav>
+
+    <!-- ════ MODULE VIEWS ════ -->
+    <div id="moduleStage">
+        <!-- Dynamically Rendered -->
+    </div>
+</div>
+
+<!-- ════ EXECUTION HUD ════ -->
+<div class="session-hud" id="sessionHUD">
+    <header class="hud-header">
+        <div style="font-weight: 900; font-size: 0.8rem; letter-spacing: 2px;">NYXFT // SESSION ACTIVE</div>
+        <div id="hudTimer" style="font-family: monospace; font-weight: 900; font-size: 1.5rem;">00:00</div>
+    </header>
+
+    <div class="hud-stage">
+        <div id="hudExLabel" style="font-size: 0.7rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 3px; margin-bottom: 1rem;">SET 1 OF 4</div>
+        <div id="hudExName" class="large-display">BENCH PRESS</div>
+        
+        <div class="hud-inputs">
+            <div class="input-box">
+                <label>Weight (kg)</label>
+                <input type="number" id="inWeight" value="0">
+            </div>
+            <div class="input-box">
+                <label>Reps</label>
+                <input type="number" id="inReps" value="0">
+            </div>
+            <div class="input-box">
+                <label>Intensity</label>
+                <input type="number" id="inRPE" value="8">
+            </div>
+        </div>
+
+        <button onclick="commitSet()" class="btn-action" style="margin-top: 5rem; padding: 1.5rem 5rem; font-size: 1rem;">COMMIT PERFORMANCE SET</button>
+        <button onclick="abortSession()" style="margin-top: 2rem; background: transparent; color: var(--accent-red); font-weight: 900; border: none; font-size: 0.7rem; cursor: pointer; letter-spacing: 1px;">ABORT PROTOCOL</button>
+    </div>
+</div>
+
+<script>
+    const SYSTEM_DATA = {
+        ppl: [
+            { id: 'ppl_push', name: 'Alpha Push', meta: 'Force generation focused on Chest, Shoulders, and Triceps.', ex: [
+                { name: 'Incline Dumbbell Press', sets: 4, reps: '8-10' },
+                { name: 'Overhead Press', sets: 3, reps: '10-12' },
+                { name: 'Lateral Raises', sets: 4, reps: '15' }
+            ]},
+            { id: 'ppl_pull', name: 'Alpha Pull', meta: 'Structural pulling for Back and Biceps development.', ex: [
+                { name: 'Deadlift', sets: 3, reps: '5' },
+                { name: 'Weighted Pullups', sets: 3, reps: '8-10' },
+                { name: 'Hammer Curls', sets: 3, reps: '12' }
+            ]},
+            { id: 'ppl_legs', name: 'Alpha Legs', meta: 'Maximum lower-body load for Quads and Hamstrings.', ex: [
+                { name: 'High Bar Squat', sets: 4, reps: '6-8' },
+                { name: 'Romanian Deadlift', sets: 3, reps: '10-12' },
+                { name: 'Calf Raises', sets: 5, reps: '20' }
+            ]}
+        ],
+        smart: [
+            { id: 's_bulk', goal: 'Bulk', level: 'Advanced', name: 'Hypertrophy Max', meta: 'High volume protocol for muscle tissue accretion.', ex: [
+                { name: 'Squats', sets: 5, reps: '10' },
+                { name: 'Bench Press', sets: 5, reps: '10' },
+                { name: 'Rows', sets: 5, reps: '10' }
+            ]}
+        ]
+    };
+
+    let activeSession = null;
+    let timer = null;
+    let seconds = 0;
+
+    function showMsg(msg) {
+        const m = document.getElementById('systemMessenger');
+        m.innerText = msg.toUpperCase();
+        m.classList.add('visible');
+        setTimeout(() => m.classList.remove('visible'), 3000);
+    }
+
+    function switchView(view) {
+        document.querySelectorAll('.nav-tab').forEach(t => {
+            t.classList.remove('active');
+            if (t.innerText.toLowerCase().includes(view)) t.classList.add('active');
+        });
+        
+        const stage = document.getElementById('moduleStage');
+        stage.innerHTML = '';
+
+        if (view === 'ppl') {
+            stage.className = 'module-grid';
+            SYSTEM_DATA.ppl.forEach(p => {
+                stage.innerHTML += `
+                    <div class="system-card">
+                        <div class="card-label">ARCHITECTURE // PPL</div>
+                        <div class="card-title">${p.name}</div>
+                        <div class="card-meta">${p.meta}</div>
+                        <div id="ex-${p.id}" class="exercise-list">
+                            ${p.ex.map(e => `
+                                <div class="exercise-item">
+                                    <span>${e.name}</span>
+                                    <span class="ex-meta">${e.sets} x ${e.reps}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button onclick="toggleEx('${p.id}')" class="btn-action" style="background: var(--bg-subtle); color: var(--accent-black);">View Protocols</button>
+                            <button onclick="startSession('${p.id}', 'ppl')" class="btn-action">Start Workout</button>
+                        </div>
+                    </div>
+                `;
+            });
+        } else if (view === 'custom') {
+            stage.className = 'builder-pane';
+            stage.innerHTML = `
+                <input type="text" id="customName" class="builder-input" placeholder="ARCHIVE NAME (e.g. UPPER POWER)">
+                <div id="architectList"></div>
+                <button onclick="addExNode()" class="btn-action" style="background: var(--bg-subtle); color: var(--accent-black); width: 100%; margin-top: 1rem;">+ Add Exercise Module</button>
+                <button onclick="saveCustom()" class="btn-action" style="width: 100%; margin-top: 1rem;">Finalize & Save Architecture</button>
+            `;
+            addExNode();
+        } else {
+            stage.className = 'module-grid';
+            SYSTEM_DATA.smart.forEach(s => {
+                stage.innerHTML += `
+                    <div class="system-card" style="border: 1px solid var(--accent-blue);">
+                        <div class="card-label">SMART SUGGESTION // ${s.goal}</div>
+                        <div class="card-title">${s.name}</div>
+                        <div class="card-meta">Optimized for ${s.level} athletes seeking maximum ${s.goal}.</div>
+                        <button onclick="startSession('${s.id}', 'smart')" class="btn-action">Apply Plan</button>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function toggleEx(id) {
+        const el = document.getElementById('ex-' + id);
+        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function addExNode() {
+        const container = document.getElementById('architectList');
+        const node = document.createElement('div');
+        node.className = 'architect-node';
+        node.innerHTML = `
+            <input type="text" class="node-name" placeholder="Exercise Name" style="flex: 2; background: transparent; border: none; font-weight: 800; font-size: 1rem; outline: none;">
+            <input type="text" class="node-sets" placeholder="Sets" style="flex: 1; background: transparent; border: none; font-weight: 800; font-size: 1rem; outline: none;">
+            <input type="text" class="node-reps" placeholder="Reps" style="flex: 1; background: transparent; border: none; font-weight: 800; font-size: 1rem; outline: none;">
+            <i class="ph ph-trash" style="cursor: pointer; color: var(--accent-red);" onclick="this.parentElement.remove()"></i>
+        `;
+        container.appendChild(node);
+    }
+
+    function startSession(id, type) {
+        let p = null;
+        if (type === 'ppl') p = SYSTEM_DATA.ppl.find(x => x.id === id);
+        else if (type === 'smart') p = SYSTEM_DATA.smart.find(x => x.id === id);
+        
+        if (!p) return;
+
+        activeSession = {
+            name: p.name,
+            ex: p.ex,
+            curIdx: 0,
+            curSet: 1,
+            logs: [],
+            vol: 0
+        };
+
+        document.getElementById('mainSystem').style.display = 'none';
+        document.getElementById('sessionHUD').style.display = 'flex';
+        
+        startTimer();
+        updateHUD();
+    }
+
+    function updateHUD() {
+        const ex = activeSession.ex[activeSession.curIdx];
+        document.getElementById('hudExName').innerText = ex.name.toUpperCase();
+        document.getElementById('hudExLabel').innerText = `SET ${activeSession.curSet} OF ${ex.sets} [TARGET: ${ex.reps}]`;
+    }
+
+    function startTimer() {
+        seconds = 0;
+        timer = setInterval(() => {
+            seconds++;
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('hudTimer').innerText = `${m}:${s}`;
+        }, 1000);
+    }
+
+    async function commitSet() {
+        const w = parseFloat(document.getElementById('inWeight').value) || 0;
+        const r = parseInt(document.getElementById('inReps').value) || 0;
+        if (w <= 0 || r <= 0) return showMsg("Performance data required.");
+
+        activeSession.vol += (w * r);
+        activeSession.curSet++;
+        
+        if (activeSession.curSet > activeSession.ex[activeSession.curIdx].sets) {
+            activeSession.curSet = 1;
+            activeSession.curIdx++;
+        }
+
+        if (activeSession.curIdx >= activeSession.ex.length) {
+            finishSession();
+        } else {
+            updateHUD();
+            showMsg("Set Logged Successfully");
+        }
+    }
+
+    async function finishSession() {
+        clearInterval(timer);
+        // Sync Logic here
+        showMsg("Protocol Complete. Synchronizing...");
+        setTimeout(() => location.reload(), 2000);
+    }
+
+    function abortSession() {
+        document.getElementById('abortLayer').style.display = 'flex';
+    }
+
+    // Initialize
+    switchView('ppl');
+</script>
+{% endblock %}

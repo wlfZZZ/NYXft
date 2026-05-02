@@ -1,0 +1,66 @@
+{% extends "client/base.html" %}
+
+{% set active_page = 'profile-setup' %}
+
+{% block title %}Identity Calibration | NYX Fitness Theories{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='client/css/profile-setup.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-card animate-slide-up">
+    <h2 class="profile-header"><i class="ph-bold ph-sliders"></i> Identity Calibration</h2>
+    <p class="profile-subheader">Complete your functional profile to initialize your dashboard.</p>
+    
+    <div id="alertBox" class="profile-alert"></div>
+
+    <form id="profileForm">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="age"><i class="ph-bold ph-hourglass-high"></i> Engine Age (Years)</label>
+                <input type="number" id="age" class="form-control" min="16" max="99" placeholder="25" required>
+            </div>
+            <div class="form-group">
+                <label for="gender"><i class="ph-bold ph-gender-intersex"></i> Protocol Identity</label>
+                <select id="gender" class="form-control" required>
+                    <option value="">Select identity...</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="height"><i class="ph-bold ph-ruler"></i> Vertical Span (cm)</label>
+                <input type="number" id="height" class="form-control" min="100" max="250" placeholder="180" required>
+            </div>
+            <div class="form-group">
+                <label for="weight"><i class="ph-bold ph-scales"></i> Current Mass (kg)</label>
+                <input type="number" id="weight" class="form-control" min="30" max="250" step="0.1" placeholder="80.5" required>
+            </div>
+        </div>
+
+        <div class="form-group goal-select-group">
+            <label for="goal"><i class="ph-bold ph-crosshair"></i> North Star Evolution (Primary Goal)</label>
+            <select id="goal" class="form-control" required>
+                <option value="">Select Target Mode...</option>
+                <option value="cut">Fat Loss (Cut)</option>
+                <option value="bulk">Muscle Gain (Bulk)</option>
+                <option value="maintain">Maintenance</option>
+                <option value="performance">Athletic Performance</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-elite primary btn-confirm">
+            Confirm Calibration <i class="ph-bold ph-check-circle"></i>
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='client/js/profile-setup.js') }}"></script>
+{% endblock %}

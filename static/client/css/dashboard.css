@@ -1,0 +1,153 @@
+/* ══════════════════════════════════════════
+   NYX FITNESS — APPLE MINIMAL DASHBOARD
+   ══════════════════════════════════════════ */
+
+.dash-main { 
+    background: var(--bg) !important; 
+    padding: 0 !important;
+}
+
+/* Scrollbar styling */
+.dash-main::-webkit-scrollbar { width: 5px; }
+.dash-main::-webkit-scrollbar-track { background: transparent; }
+.dash-main::-webkit-scrollbar-thumb {
+    background: #E5E7EB;
+    border-radius: 10px;
+}
+
+/* ══════════════════════════════════════════
+   MINIMAL COMPONENT SYSTEM
+   ══════════════════════════════════════════ */
+
+/* Reusable Card Styles */
+.content-card, .stat-card-new, .insights-hero, .panel-module, .macro-widget, .meal-card-premium {
+    background: #FFFFFF !important;
+    border: 1px solid #F1F5F9 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03) !important;
+    border-radius: 20px !important;
+    padding: 1.75rem !important;
+    transition: var(--transition) !important;
+}
+
+.content-card:hover, .stat-card-new:hover, .macro-widget:hover, .meal-card-premium:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
+    transform: translateY(-2px);
+    border-color: #E2E8F0 !important;
+}
+
+/* Protocol Item styling */
+.protocol-item {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border-radius: 16px;
+    transition: var(--transition);
+    border: 1px solid #F3F4F6;
+    background: #FFFFFF;
+}
+
+.protocol-item:hover {
+    border-color: var(--accent-primary);
+    background: #F9FAFB !important;
+}
+
+.protocol-icon {
+    width: 44px;
+    height: 44px;
+    background: #F9FAFB;
+    color: #0B0B0B;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border: 1px solid #F1F5F9;
+}
+
+/* Progress Bars */
+.progress-bar-container, .progress-bar-thin {
+    height: 6px !important;
+    background: #F3F4F6 !important;
+    border-radius: 10px !important;
+}
+
+.progress-bar-fill, .progress-bar-inner {
+    height: 100% !important;
+    border-radius: 10px !important;
+    background: var(--accent-primary) !important;
+}
+
+/* Calendar Overrides */
+.fit-calendar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cal-head {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #0B0B0B;
+    margin-bottom: 0.5rem;
+}
+
+.cal-nav {
+    display: flex;
+    gap: 12px;
+    color: #9CA3AF;
+}
+
+.cal-nav i:hover { color: #0B0B0B; }
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.cal-wday {
+    font-size: 0.6rem;
+    color: #9CA3AF;
+    text-align: center;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 10px;
+    color: #4B5563;
+    transition: var(--transition);
+}
+
+.cal-day:hover:not(.active) {
+    background: #F9FAFB;
+    color: #0B0B0B;
+}
+
+.cal-day.active {
+    background: #0B0B0B !important;
+    color: white !important;
+    font-weight: 800;
+}
+
+/* Helper Utilities */
+.flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; }
+.gap-1 { gap: 1rem; }
+
+/* Dashboard Typography */
+h1, h2, h3 {
+    color: #0B0B0B;
+    font-weight: 950;
+    letter-spacing: -0.5px;
+}
+
+p { color: #6B7280; }

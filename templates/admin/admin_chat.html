@@ -1,0 +1,199 @@
+{% extends "admin/admin_base.html" %}
+{% set active_page = 'chat' %}
+
+{% block extra_css %}
+<style>
+    .chat-layout {
+        height: calc(100vh - 180px);
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 1.5rem;
+    }
+
+    .athlete-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .athlete-card {
+        padding: 1.25rem;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--cmd-border);
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .athlete-card:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
+    .athlete-card.active { background: var(--cmd-card); border-color: rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+    .chat-terminal {
+        display: flex;
+        flex-direction: column;
+        background: var(--cmd-card);
+        border: 1px solid var(--cmd-border);
+        border-radius: 24px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .msg-stream {
+        flex: 1;
+        padding: 2.5rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .msg-bubble {
+        max-width: 75%;
+        padding: 12px 20px;
+        border-radius: 18px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        line-height: 1.5;
+        position: relative;
+    }
+
+    .msg-bubble.admin {
+        align-self: flex-end;
+        background: #FFF;
+        color: #000;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .msg-bubble.client {
+        align-self: flex-start;
+        background: rgba(255,255,255,0.05);
+        color: #FFF;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-bottom-left-radius: 4px;
+    }
+
+    .msg-meta {
+        font-size: 0.6rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 6px;
+        opacity: 0.4;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+    <!-- LEFT: DIRECTORY -->
+    <div class="athlete-sidebar">
+        <h3 style="font-family: var(--font-header); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; color: var(--cmd-dim);">Active Uplinks</h3>
+        {% for athlete in athletes %}
+        <div class="athlete-card {% if (target_id and target_id|string == athlete.id|string) or (not target_id and loop.first) %}active{% endif %}" 
+             onclick="selectNode('{{ athlete.id }}', '{{ athlete.name }}')">
+            <div style="width: 40px; height: 40px; background: #000; border: 1px solid var(--cmd-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-header); font-size: 0.8rem;">
+                {{ athlete.name[0] }}
+            </div>
+            <div>
+                <div style="font-weight: 700; font-size: 0.85rem;">{{ athlete.name }}</div>
+                <div style="font-size: 0.6rem; color: var(--cmd-dim); font-weight: 800;">ID_{{ "%04d"|format(athlete.id) }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- RIGHT: COMMAND STREAM -->
+    <div class="chat-terminal">
+        <div style="padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--cmd-border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="status-dot"></div>
+                <h3 id="targetHeader" style="font-family: var(--font-header); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px;">
+                    {% if target_id %}
+                        {% for a in athletes if a.id|string == target_id|string %}{{ a.name }}{% endfor %}
+                    {% else %}
+                        {{ athletes[0].name if athletes else 'SELECT_NODE' }}
+                    {% endif %}
+                </h3>
+            </div>
+            <div style="font-family: monospace; font-size: 0.65rem; color: var(--cmd-dim);">PORT: 5002 // UPLINK_ENCRYPTED</div>
+        </div>
+
+        <div id="msgStream" class="msg-stream">
+            <!-- Messages populated via JS -->
+        </div>
+
+        <div style="padding: 1.5rem 2.5rem; border-top: 1px solid var(--cmd-border); background: rgba(0,0,0,0.5);">
+            <form id="transmitForm" style="display: flex; gap: 1rem; align-items: center;">
+                <input type="text" id="msgInput" placeholder="TRANSMIT_DATA_TO_NODE..." autocomplete="off" style="flex: 1; background: #000; border: 1px solid var(--cmd-border); color: #FFF; padding: 16px 20px; border-radius: 14px; font-family: monospace; font-size: 0.85rem; outline: none;">
+                <button type="submit" class="btn-action" style="height: 54px; padding: 0 30px; background: #FFF; color: #000;">Authorize</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentId = {% if target_id %}{{ target_id }}{% elif athletes %}{{ athletes[0].id }}{% else %}null{% endif %};
+    const stream = document.getElementById('msgStream');
+    const input = document.getElementById('msgInput');
+    const form = document.getElementById('transmitForm');
+
+    async function loadChat(id) {
+        if (!id) return;
+        try {
+            const res = await fetch(`/api/chat/history/${id}`);
+            const data = await res.json();
+            
+            // Re-render only if count differs
+            if (stream.children.length !== data.length) {
+                stream.innerHTML = '';
+                data.forEach(m => {
+                    const isMe = m.sender === 'admin';
+                    const div = document.createElement('div');
+                    div.style.display = 'flex';
+                    div.style.flexDirection = 'column';
+                    div.style.alignItems = isMe ? 'flex-end' : 'flex-start';
+                    div.innerHTML = `
+                        <div class="msg-bubble ${isMe ? 'admin' : 'client'}">${m.content}</div>
+                        <span class="msg-meta">${isMe ? 'COMMAND' : 'ATHLETE'} // ${m.timestamp}</span>
+                    `;
+                    stream.appendChild(div);
+                });
+                stream.scrollTop = stream.scrollHeight;
+            }
+        } catch(e) { console.warn("SIGNAL_LOSS"); }
+    }
+
+    window.selectNode = (id, name) => {
+        currentId = id;
+        document.getElementById('targetHeader').innerText = name.toUpperCase();
+        document.querySelectorAll('.athlete-card').forEach(c => c.classList.remove('active'));
+        // We could use an event target here, but a reload or manual class swap works
+        window.location.href = `?user_id=${id}`;
+    }
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const content = input.value.trim();
+        if (!content || !currentId) return;
+        
+        input.value = '';
+        const res = await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentId, content: content, sender: 'admin' })
+        });
+        if (res.ok) loadChat(currentId);
+    }
+
+    setInterval(() => loadChat(currentId), 3000);
+    loadChat(currentId);
+</script>
+{% endblock %}
