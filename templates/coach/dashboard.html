@@ -1,0 +1,63 @@
+{% extends "coach/coach_base.html" %}
+{% set active_page = 'coach_dash' %}
+
+{% block content %}
+<!-- SECTION 1: UNIT OVERVIEW -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="label">Total Athletes</span>
+        <div class="value">{{ roster_count }}</div>
+        <div class="trend up">+12% Signal Strength</div>
+    </div>
+    <div class="stat-card">
+        <span class="label">Active Athletes</span>
+        <div class="value">{{ roster_count }}</div>
+        <div class="trend" style="color:var(--coach-text-dim);">All Units Nominal</div>
+    </div>
+    <div class="stat-card">
+        <span class="label">Pending Alerts</span>
+        <div class="value" style="color:var(--warning);">2</div>
+        <div class="trend" style="color:var(--warning);">Action Required</div>
+    </div>
+    <div class="stat-card">
+        <span class="label">Avg Consistency</span>
+        <div class="value">94.2%</div>
+        <div class="trend up">+2.1% This Week</div>
+    </div>
+</div>
+
+<!-- SECTION 2: MY ROSTER -->
+<div class="roster-header">
+    <h2>Performance Roster</h2>
+    <div class="btn-pro secondary">Export Roster</div>
+</div>
+
+<div class="athlete-list">
+    {% for stat in roster_stats %}
+    <div class="athlete-row">
+        <div class="athlete-cell identity">
+            <span class="name">{{ stat.user.name }}</span>
+            <span class="email">{{ stat.user.email }}</span>
+        </div>
+        <div class="athlete-cell">
+            <div class="status-tag active">Active</div>
+        </div>
+        <div class="athlete-cell">
+            <div class="cell-label">Current Weight</div>
+            <div class="cell-val">{{ stat.user.weight }} kg</div>
+        </div>
+        <div class="athlete-cell">
+            <div class="cell-label">Last Activity</div>
+            <div class="cell-val">{{ stat.latest_log.date[5:] if stat.latest_log else 'N/A' }}</div>
+        </div>
+        <div class="actions-group">
+            <a href="{{ url_for('coach_intelligence', user_id=stat.user.id) }}" class="btn-pro primary">View Intelligence</a>
+        </div>
+    </div>
+    {% else %}
+    <div style="background:#FFF; padding:4rem; border-radius:12px; text-align:center; border:1px dashed var(--coach-border);">
+        <p style="color:var(--coach-text-dim); font-weight:700;">No units currently assigned to this lead command.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -630,6 +630,49 @@
     }
     .action-pill:hover { background: #F5F5F7; }
 
+    /* ════ CUSTOM SUGGESTIONS ════ */
+    .custom-suggestion-box {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid #F2F2F7;
+        border-radius: 18px;
+        margin-top: 8px;
+        max-height: 240px;
+        overflow-y: auto;
+        z-index: 3000;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        display: none;
+    }
+
+    .suggestion-item {
+        padding: 14px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:hover { background: #F5F5F7; color: var(--accent-blue); }
+
+    .suggestion-meta {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        background: #F2F2F7;
+        padding: 2px 8px;
+        border-radius: 6px;
+    }
+
 </style>
 {% endblock %}
 
@@ -716,7 +759,11 @@
         <!-- MEALS -->
         <div class="meal-protocol-grid">
             {% for type in ['Breakfast', 'Lunch', 'Dinner', 'Snacks'] %}
-            <div class="meal-apple-box animate-in" style="animation-delay: {{ 0.4 + loop.index0 * 0.1 }}s">
+            <div class="meal-apple-box animate-in" 
+                 style="animation-delay: {{ 0.4 + loop.index0 * 0.1 }}s"
+                 ondragover="event.preventDefault(); this.style.boxShadow='0 0 20px rgba(0,122,255,0.15)';"
+                 ondragleave="this.style.boxShadow='var(--card-shadow)';"
+                 ondrop="handleDrop(event, '{{ type }}')">
                 <div class="meal-head">
                     <div class="meal-name">{{ type }}</div>
                     <div class="meal-total-tag" id="{{ type.lower() }}-cals">0 KCAL</div>
@@ -796,8 +843,8 @@
         <h2 style="font-family: var(--font-header); font-size: 2rem; margin-bottom: 2rem;" id="modalTitle">Add Item</h2>
         <div class="form-group">
             <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 10px; display: block;">Search Database</label>
-            <input type="text" id="inputName" class="search-bar" style="background: #F5F5F7;" placeholder="Start typing..." list="foodSuggestions" oninput="handleFoodSelection()">
-            <datalist id="foodSuggestions"></datalist>
+            <input type="text" id="inputName" class="search-bar" style="background: #F5F5F7;" placeholder="Start typing..." oninput="handleSearchSuggestions()" autocomplete="off">
+            <div id="customSuggestions" class="custom-suggestion-box"></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;">
             <div><label class="macro-tag">Calories</label><input type="number" id="inputCals" class="search-bar"></div>
@@ -864,14 +911,6 @@
             nutritionDatabase = await res.json();
             document.getElementById('datasetCount').innerText = `${(nutritionDatabase.length / 1000).toFixed(1)}K+`;
             
-            // Initialize suggestions
-            const datalist = document.getElementById('foodSuggestions');
-            nutritionDatabase.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item.name;
-                datalist.appendChild(opt);
-            });
-
             updateCategoryBar();
             filterQuickAdd();
         } catch (err) {
@@ -993,6 +1032,14 @@
         itemsToRender.forEach(item => {
             const el = document.createElement('div');
             el.className = 'quick-item';
+            el.draggable = true;
+            el.ondragstart = (e) => {
+                e.dataTransfer.setData('foodItem', JSON.stringify(item));
+                el.style.opacity = '0.5';
+            };
+            el.ondragend = () => {
+                el.style.opacity = '1';
+            };
             el.onclick = () => quickAddItem(item);
             
             let tagsHtml = '';
@@ -1052,6 +1099,45 @@
         document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
         el.classList.add('active');
         filterQuickAdd();
+    }
+
+
+    function handleSearchSuggestions() {
+        const query = document.getElementById('inputName').value.toLowerCase();
+        const box = document.getElementById('customSuggestions');
+        
+        if (!query || query.length < 1) {
+            box.style.display = 'none';
+            return;
+        }
+
+        const matches = nutritionDatabase
+            .filter(f => f.name.toLowerCase().includes(query))
+            .slice(0, 15);
+
+        if (matches.length > 0) {
+            box.innerHTML = matches.map(m => `
+                <div class="suggestion-item" onclick="selectSuggestion('${m.name.replace(/'/g, "\\'")}')">
+                    <span>${m.name}</span>
+                    <span class="suggestion-meta">${m.calories} KCAL</span>
+                </div>
+            `).join('');
+            box.style.display = 'block';
+        } else {
+            box.style.display = 'none';
+        }
+    }
+
+    function selectSuggestion(name) {
+        const item = nutritionDatabase.find(f => f.name === name);
+        if (item) {
+            document.getElementById('inputName').value = item.name;
+            document.getElementById('inputCals').value = item.calories;
+            document.getElementById('inputProtein').value = item.protein;
+            document.getElementById('inputCarbs').value = item.carbs;
+            document.getElementById('inputFats').value = item.fats;
+        }
+        document.getElementById('customSuggestions').style.display = 'none';
     }
 
 
@@ -1160,6 +1246,42 @@
 
     function closeFoodModal() {
         document.getElementById('foodModal').style.display = 'none';
+        document.getElementById('customSuggestions').style.display = 'none';
+    }
+
+    async function submitFood() {
+        const name = document.getElementById('inputName').value;
+        const calories = parseInt(document.getElementById('inputCals').value) || 0;
+        const protein = parseInt(document.getElementById('inputProtein').value) || 0;
+        const carbs = parseInt(document.getElementById('inputCarbs').value) || 0;
+        const fats = parseInt(document.getElementById('inputFats').value) || 0;
+        const meal_type = document.getElementById('inputMealType').value;
+
+        if (!name) {
+            alert('Please enter a food name');
+            return;
+        }
+
+        const payload = { name, calories, protein, carbs, fats, meal_type };
+        
+        try {
+            const res = await fetch('/api/nutrition/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            updateUI(data);
+            closeFoodModal();
+            // Reset fields
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputCals').value = '';
+            document.getElementById('inputProtein').value = '';
+            document.getElementById('inputCarbs').value = '';
+            document.getElementById('inputFats').value = '';
+        } catch (err) {
+            console.error('Error submitting food:', err);
+        }
     }
 
     async function quickAddItem(item) {
@@ -1171,6 +1293,23 @@
         });
         const data = await res.json();
         updateUI(data);
+    }
+
+    async function handleDrop(e, mealType) {
+        e.preventDefault();
+        e.currentTarget.style.boxShadow = 'var(--card-shadow)';
+        const itemData = e.dataTransfer.getData('foodItem');
+        if (itemData) {
+            const item = JSON.parse(itemData);
+            const payload = { ...item, meal_type: mealType };
+            const res = await fetch('/api/nutrition/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            updateUI(data);
+        }
     }
 
     async function removeFood(id) {

@@ -1,0 +1,203 @@
+{% extends "coach/coach_base.html" %}
+{% set active_page = 'coach_intel' %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 7fr 3fr; gap: 2rem; height: 100%;">
+    <!-- LEFT: PERFORMANCE ANALYSIS -->
+    <div style="overflow-y: auto; padding-right: 1rem;">
+        <div style="margin-bottom: 2rem; display:flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 style="font-size: 1.8rem; font-weight: 900; margin-bottom: 0.5rem;">{{ athlete.name }}</h1>
+                <div style="display:flex; gap: 1rem; font-size: 0.8rem; color: var(--coach-text-dim); font-weight: 600;">
+                    <span>Goal: <span style="color:var(--coach-primary)">{{ athlete.goal }}</span></span>
+                    <span>Current: <span style="color:var(--coach-text)">{{ athlete.weight }}kg</span></span>
+                </div>
+            </div>
+            <div class="btn-pro secondary" onclick="window.location.href='/coach/dashboard'">Back to Roster</div>
+        </div>
+
+        <!-- STAT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+            <div class="stat-card" style="padding: 1.25rem;">
+                <span class="label">Weight Delta</span>
+                <div class="value" style="font-size: 1.2rem;">-2.4 kg</div>
+            </div>
+            <div class="stat-card" style="padding: 1.25rem;">
+                <span class="label">Workouts / Week</span>
+                <div class="value" style="font-size: 1.2rem;">4.2</div>
+            </div>
+            <div class="stat-card" style="padding: 1.25rem;">
+                <span class="label">PR Improvement</span>
+                <div class="value" style="font-size: 1.2rem; color: var(--success);">+14%</div>
+            </div>
+            <div class="stat-card" style="padding: 1.25rem;">
+                <span class="label">Daily Calories</span>
+                <div class="value" style="font-size: 1.2rem;">2,840</div>
+            </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="stat-card" style="height: 300px;">
+                <span class="label">Weight Progress</span>
+                <canvas id="weightChart"></canvas>
+            </div>
+            <div class="stat-card" style="height: 300px;">
+                <span class="label">Volume Consistency</span>
+                <canvas id="consistencyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- INSIGHTS BOX -->
+        <div style="background: rgba(0,122,255,0.05); border: 1px solid rgba(0,122,255,0.1); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+            <h3 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; color: var(--coach-primary);">Tactical Insights</h3>
+            <ul style="font-size: 0.85rem; color: var(--coach-text); list-style: none; display: flex; flex-direction: column; gap: 10px;">
+                <li style="display:flex; align-items:center; gap:8px;">
+                    <i class="ph-bold ph-check-circle" style="color: var(--success);"></i> User showing consistent weight reduction in line with Cut Protocol.
+                </li>
+                <li style="display:flex; align-items:center; gap:8px;">
+                    <i class="ph-bold ph-warning-circle" style="color: var(--warning);"></i> Protein intake below daily 180g target (Avg: 162g).
+                </li>
+            </ul>
+        </div>
+
+        <!-- RECENT LOGS TABLE -->
+        <div class="stat-card">
+            <span class="label">Historical Log Data</span>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid var(--coach-border);">
+                        <th style="padding: 10px 0; color: var(--coach-text-dim);">Date</th>
+                        <th style="padding: 10px 0; color: var(--coach-text-dim);">Weight</th>
+                        <th style="padding: 10px 0; color: var(--coach-text-dim);">Energy (kcal)</th>
+                        <th style="padding: 10px 0; color: var(--coach-text-dim);">Steps</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr style="border-bottom: 1px solid var(--coach-border);">
+                        <td style="padding: 12px 0; font-weight: 700;">{{ log.date }}</td>
+                        <td style="padding: 12px 0;">{{ log.weight }} kg</td>
+                        <td style="padding: 12px 0;">{{ log.cals }}</td>
+                        <td style="padding: 12px 0;">{{ log.steps }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- RIGHT: CHAT PANEL -->
+    <div class="chat-container">
+        <div class="chat-header">
+            Integrated Uplink: {{ athlete.name }}
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="bubble user">Coach, my recovery has been slightly slower this week. Any adjustments?</div>
+            <div class="bubble coach">Copy that. Increase your hydration by 500ml and ensure 8 hours of sleep. We'll reassess Friday.</div>
+            <div class="bubble user">Understood. Protocol adjusted.</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="Type tactical guidance..." id="msgInput">
+            <button class="btn-pro primary" style="padding: 8px 12px;" onclick="sendMessage()">
+                <i class="ph-bold ph-paper-plane-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Weight Chart
+        new Chart(document.getElementById('weightChart'), {
+            type: 'line',
+            data: {
+                labels: {{ dates|tojson }},
+                datasets: [{
+                    label: 'Weight',
+                    data: {{ weight_history|tojson }},
+                    borderColor: '#007AFF',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointBackgroundColor: '#FFF',
+                    pointBorderColor: '#007AFF',
+                    pointRadius: 4,
+                    fill: true,
+                    backgroundColor: 'rgba(0, 122, 255, 0.05)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: false }
+                }
+            }
+        });
+
+        // Consistency Chart (Dummy)
+        new Chart(document.getElementById('consistencyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Volume',
+                    data: [12000, 15000, 11000, 18000, 14000, 9000, 10000],
+                    backgroundColor: '#FACC15',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { display: false }
+                }
+            }
+        });
+
+        loadChat();
+    });
+
+    async function loadChat() {
+        const res = await fetch('/api/chat/history/{{ athlete.id }}');
+        const history = await res.json();
+        const container = document.getElementById('chatMessages');
+        // Prepend static demo messages for effect, or just load history
+        history.forEach(m => {
+            const b = document.createElement('div');
+            b.className = `bubble ${m.sender}`;
+            b.innerText = m.content;
+            container.appendChild(b);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('msgInput');
+        const val = input.value;
+        if(!val) return;
+        
+        const res = await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                user_id: {{ athlete.id }},
+                content: val,
+                sender: 'coach'
+            })
+        });
+        
+        if(res.ok) {
+            input.value = '';
+            loadChat();
+        }
+    }
+</script>
+{% endblock %}

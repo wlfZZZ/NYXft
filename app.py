@@ -5,6 +5,8 @@ from functools import wraps
 import os
 import pandas as pd
 import json
+import io
+from flask import send_file
 
 app = Flask(__name__)
 app.secret_key = "nyx_super_secret_key"
@@ -62,7 +64,11 @@ class User(db.Model):
     nickname = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(120), nullable=False)
     profile_setup_complete = db.Column(db.Boolean, default=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    is_admin = db.Column(db.Boolean, default=False) # Legacy support
+    role = db.Column(db.String(20), default='athlete') # athlete, coach, admin
+    coach_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    coach = db.relationship('User', remote_side=[id], backref='roster')
+    
     plan = db.Column(db.String(20), default='Elite') # Trial, Starter, Pro, Elite
     trial_start = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -83,6 +89,10 @@ class User(db.Model):
     # Assigned Intelligence
     assigned_workout = db.Column(db.Text, nullable=True) # JSON string
 
+    # Professional Stats (for Coaches)
+    specialization = db.Column(db.String(100), nullable=True) # e.g. Hypertrophy, Fat Loss
+    bio = db.Column(db.Text, nullable=True)
+    
     logs = db.relationship('ProgressLog', backref='athlete', lazy=True)
     prs = db.relationship('PersonalRecord', backref='athlete', lazy=True)
     goals = db.relationship('PRGoal', backref='athlete', lazy=True)
@@ -190,18 +200,31 @@ with app.app_context():
     db.create_all()
     
     # Seed Admin User if none exist
-    if not User.query.filter_by(is_admin=True).first():
+    if not User.query.filter_by(role='admin').first():
         admin = User(
             email="admin@nyxft.com",
-            name="System Admin",
+            name="Infrastructure Admin",
             nickname="admin",
-            password="admin", # Plaintext for demo
+            password="admin",
+            role="admin",
             is_admin=True,
             profile_setup_complete=True
         )
         db.session.add(admin)
+        
+        # Seed a Demo Coach
+        coach = User(
+            email="coach@nyxft.com",
+            name="Tactical Coach",
+            nickname="coach",
+            password="coach",
+            role="coach",
+            profile_setup_complete=True
+        )
+        db.session.add(coach)
+        
         db.session.commit()
-        print("Admin user seeded: admin@nyxft.com / admin")
+        print("System users seeded: Admin (admin@nyxft.com) & Coach (coach@nyxft.com)")
 
 
 # --- ROUTING ---
@@ -228,6 +251,7 @@ def profile_setup():
 def forgot_password():
     return render_template('client/forgot_password.html')
 
+
 @app.route('/chat')
 def chat():
     if 'user' not in session:
@@ -235,14 +259,34 @@ def chat():
     user = User.query.filter_by(email=session['user']).first()
     return render_template('client/chat.html', user=user)
 
-
 @app.route('/coaches')
 def coaches():
     if 'user' not in session:
         return redirect(url_for('auth'))
     user = User.query.filter_by(email=session['user']).first()
     if not user: return redirect(url_for('auth'))
-    return render_template('client/coaches.html', user=user, messages=user.messages, premium_locked=not user.has_premium_access)
+    
+    all_coaches = User.query.filter_by(role='coach').all()
+    assigned_coach = User.query.get(user.coach_id) if user.coach_id else None
+    
+    return render_template('client/coaches.html', 
+                           user=user, 
+                           coaches=all_coaches,
+                           assigned_coach=assigned_coach,
+                           messages=user.messages)
+
+@app.route('/api/coach/select', methods=['POST'])
+def api_coach_select():
+    if 'user' not in session: return jsonify({'error': 'Unauthorized'}), 401
+    user = User.query.filter_by(email=session['user']).first()
+    data = request.json
+    coach_id = data.get('coach_id')
+    
+    if coach_id:
+        user.coach_id = coach_id
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'error': 'No coach selected'}), 400
 
 @app.route('/pr-tracker')
 def pr_tracker():
@@ -755,8 +799,10 @@ def api_auth():
         user = User.query.filter_by(email=email).first()
         if user and user.password == password:
             session['user'] = email
-            if not user.profile_setup_complete:
-                return jsonify({'success': True, 'redirect': url_for('profile_setup')})
+            if user.role == 'admin':
+                return jsonify({'success': True, 'redirect': url_for('admin_dashboard')})
+            if user.role == 'coach':
+                return jsonify({'success': True, 'redirect': url_for('coach_dashboard')})
             return jsonify({'success': True, 'redirect': url_for('dashboard')})
         return jsonify({'error': 'Invalid credentials'}), 401
     
@@ -790,21 +836,6 @@ def get_templates():
         'exercises': json.loads(t.exercises_data)
     } for t in templates])
 
-@app.route('/api/chat/send', methods=['POST'])
-def api_chat_send():
-    if 'user' not in session: return jsonify({'error': 'Unauthorized'}), 401
-    user = User.query.filter_by(email=session['user']).first()
-    data = request.json
-    
-    new_msg = ChatMessage(
-        sender='athlete',
-        text=data.get('message'),
-        time=datetime.now().strftime("%H:%M"),
-        user_id=user.id
-    )
-    db.session.add(new_msg)
-    db.session.commit()
-    return jsonify({'success': True})
 
 @app.route('/api/profile', methods=['POST'])
 def api_profile():
@@ -996,6 +1027,19 @@ def set_nutrition_goal():
     return jsonify({'success': True, 'message': f'Switched to {new_goal} mode. Cycle reset.'})
 from functools import wraps
 
+@app.route('/coach/login')
+def coach_login():
+    if 'user' in session:
+        user = User.query.filter_by(email=session['user']).first()
+        if user and user.role == 'coach':
+            return redirect(url_for('coach_dashboard'))
+    return render_template('coach/coach_login.html')
+
+@app.route('/coach/logout')
+def coach_logout():
+    session.pop('user', None)
+    return redirect(url_for('coach_login'))
+
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
@@ -1004,9 +1048,9 @@ def admin_login():
         password = data.get('password')
         
         user = User.query.filter_by(email=email).first()
-        if user and user.password == password and user.is_admin:
-            session['admin_user'] = email
-            return jsonify({'success': True})
+        if user and user.password == password and user.role == 'admin':
+            session['user'] = email
+            return jsonify({'success': True, 'redirect': url_for('admin_dashboard')})
         return jsonify({'error': 'Unauthorized'}), 401
     
     return render_template('admin/admin_login.html')
@@ -1019,13 +1063,25 @@ def admin_logout():
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'admin_user' not in session:
+        if 'user' not in session:
             return redirect(url_for('admin_login'))
-        user = User.query.filter_by(email=session['admin_user']).first()
-        if not user or not user.is_admin:
+        user = User.query.filter_by(email=session['user']).first()
+        if not user or user.role != 'admin':
             return redirect(url_for('admin_login'))
         return f(*args, **kwargs)
     return decorated_function
+
+def coach_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            return redirect(url_for('coach_login'))
+        user = User.query.filter_by(email=session['user']).first()
+        if not user or user.role not in ['coach', 'admin']:
+            return redirect(url_for('coach_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 @app.route('/admin/broadcast', methods=['POST'])
 @admin_required
@@ -1050,20 +1106,20 @@ def clear_alert(alert_id):
     return jsonify({'success': True})
 
 def get_flagged_athletes():
-    # Detect athletes who haven't logged in 3 days or have 0 weight
+    # Detect athletes who haven't logged in 3 days or have biometric gaps
     three_days_ago = datetime.utcnow() - timedelta(days=3)
     flagged = []
     
     # 1. Inactivity Flag
-    inactive = User.query.filter((User.last_login_at < three_days_ago) | (User.last_login_at == None)).all()
+    inactive = User.query.filter(User.role == 'athlete').filter((User.last_login_at < three_days_ago) | (User.last_login_at == None)).all()
     for u in inactive:
         flagged.append({'user': u, 'reason': 'INACTIVITY', 'severity': 'warning'})
         
-    # 2. Weight Anomaly (Legacy check - weight missing)
-    missing_weight = User.query.filter((User.weight == None) | (User.weight == '')).all()
-    for u in missing_weight:
+    # 2. Unassigned Units (Strategic Oversight)
+    unassigned = User.query.filter(User.role == 'athlete', User.coach_id == None).all()
+    for u in unassigned:
         if u not in [f['user'] for f in flagged]:
-            flagged.append({'user': u, 'reason': 'BIOMETRIC_GAP', 'severity': 'tactical'})
+            flagged.append({'user': u, 'reason': 'NO_COACH_ASSIGNED', 'severity': 'tactical'})
             
     return flagged
 
@@ -1086,6 +1142,19 @@ def api_send_message():
 
 @app.route('/api/chat/history/<int:user_id>')
 def api_chat_history(user_id):
+    if 'user' not in session: return jsonify([]), 401
+    viewer = User.query.filter_by(email=session['user']).first()
+    target = User.query.get_or_404(user_id)
+
+    # ACCESS CONTROL: 
+    # 1. Athlete can see their own chat.
+    # 2. Coach can only see chat with THEIR athletes.
+    # 3. Admin can see all (for oversight/safety).
+    if viewer.role == 'athlete' and viewer.id != target.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    if viewer.role == 'coach' and target.coach_id != viewer.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
     messages = ChatMessage.query.filter_by(user_id=user_id).order_by(ChatMessage.timestamp.asc()).all()
     return jsonify([{
         'sender': m.sender,
@@ -1106,28 +1175,152 @@ def admin_dashboard():
     
     # Stats
     premium_users = User.query.filter(User.plan != 'Trial').count()
+    total_coaches = User.query.filter_by(role='coach').count()
     
     return render_template('admin/admin_dashboard.html', 
                            total_users=total_users, 
                            total_logs=total_logs,
                            recent_users=recent_users,
                            premium_users=premium_users,
+                           total_coaches=total_coaches,
                            nutrition_count=len(NUTRITION_DB),
                            flagged_athletes=flagged[:5],
                            active_alerts=active_alerts)
+
 
 @app.route('/admin/chat')
 @admin_required
 def admin_chat():
     target_id = request.args.get('user_id')
-    athletes = User.query.filter_by(is_admin=False).all()
+    # Admins focus on communications with unassigned athletes or direct system support
+    athletes = User.query.filter_by(role='athlete').all()
     return render_template('admin/admin_chat.html', athletes=athletes, target_id=target_id)
+
+@app.route('/coach/dashboard')
+@coach_required
+def coach_dashboard():
+    coach = User.query.filter_by(email=session['user']).first()
+    
+    # PERMANENT FIX: Global Oversight for Admins, Specific Roster for Coaches
+    if coach.role == 'admin' or coach.is_admin:
+        roster = User.query.filter_by(role='athlete').all()
+        oversight_mode = "GLOBAL_ADMIN"
+    else:
+        roster = User.query.filter_by(coach_id=coach.id).all()
+        oversight_mode = "TACTICAL_COACH"
+        
+    print(f"[TACTICAL_DIAGNOSTIC] Mode: {oversight_mode} | ID: {coach.id} | Roster Count: {len(roster)}")
+    
+    # Generate Performance Snapshots
+    roster_stats = []
+    activity_feed = []
+    
+    for athlete in roster:
+        logs = ProgressLog.query.filter_by(user_id=athlete.id).order_by(ProgressLog.date.desc()).limit(7).all()
+        weight_history = [float(log.weight) if log.weight else 0 for log in reversed(logs)] if logs else [float(athlete.weight) if athlete.weight else 0]
+        dates = [log.date[5:] for log in reversed(logs)] if logs else ['N/A']
+        
+        roster_stats.append({
+            'user': athlete,
+            'weight_history': weight_history,
+            'dates': dates,
+            'latest_log': logs[0] if logs else None
+        })
+        
+        # Add to global activity feed
+        if logs:
+            activity_feed.append({
+                'name': athlete.name,
+                'action': 'LOGGED_BIOMETRICS',
+                'time': logs[0].created_at.strftime('%H:%M'),
+                'detail': f"{logs[0].weight}kg / {logs[0].cals}kcal"
+            })
+
+    # Sort activity feed by time (pseudo-realtime)
+    activity_feed = sorted(activity_feed, key=lambda x: x['time'], reverse=True)[:10]
+
+    return render_template('coach/dashboard.html', 
+                           roster=roster, 
+                           roster_stats=roster_stats,
+                           activity_feed=activity_feed,
+                           roster_count=len(roster))
+
+@app.route('/coach/intelligence/<int:user_id>')
+@coach_required
+def coach_intelligence(user_id):
+    coach = User.query.filter_by(email=session['user']).first()
+    athlete = User.query.get_or_404(user_id)
+    
+    # Security: Ensure this coach owns this athlete (Admins have Global Oversight)
+    is_authorized_admin = coach.role == 'admin' or coach.is_admin
+    if not is_authorized_admin and athlete.coach_id != coach.id:
+        return redirect(url_for('coach_dashboard'))
+    
+    logs = ProgressLog.query.filter_by(user_id=athlete.id).order_by(ProgressLog.date.desc()).all()
+    weight_history = [float(log.weight) if log.weight else 0 for log in reversed(logs)] if logs else [float(athlete.weight) if athlete.weight else 0]
+    dates = [log.date[5:] for log in reversed(logs)] if logs else ['N/A']
+    
+    # PR History
+    prs = PersonalRecord.query.filter_by(user_id=athlete.id).order_by(PersonalRecord.date.desc()).all()
+
+    return render_template('coach/intelligence.html',
+                           athlete=athlete,
+                           weight_history=weight_history,
+                           dates=dates,
+                           prs=prs,
+                           logs=logs[:10],
+                           roster_count=User.query.filter_by(coach_id=coach.id).count())
 
 @app.route('/admin/users')
 @admin_required
 def admin_users():
-    users = User.query.all()
-    return render_template('admin/admin_users.html', users=users)
+    users = User.query.filter_by(role='athlete').all()
+    coaches = User.query.filter_by(role='coach').all()
+    return render_template('admin/admin_users.html', users=users, coaches=coaches)
+
+@app.route('/admin/assign_coach', methods=['POST'])
+@admin_required
+def assign_coach():
+    data = request.json
+    user_id = data.get('user_id')
+    coach_id = data.get('coach_id')
+    
+    athlete = User.query.get_or_404(user_id)
+    athlete.coach_id = coach_id
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route('/admin/export_users')
+@admin_required
+def export_users():
+    athletes = User.query.filter_by(role='athlete').all()
+    data = []
+    for u in athletes:
+        coach_name = u.coach.name if u.coach else 'UNASSIGNED'
+        data.append({
+            'Node ID': f"ID_NODE_{u.id:04d}",
+            'Name': u.name,
+            'Email': u.email,
+            'Plan': u.plan,
+            'Age': u.age,
+            'Gender': u.gender,
+            'Goal': u.goal,
+            'Coach': coach_name,
+            'Last Login': u.last_login_at.strftime('%Y-%m-%d %H:%M') if u.last_login_at else 'NEVER'
+        })
+    
+    df = pd.DataFrame(data)
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Athlete Manifest')
+    output.seek(0)
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=f"NYX_Athlete_Manifest_{datetime.now().strftime('%Y%m%d')}.xlsx"
+    )
 
 @app.route('/admin/users/toggle_admin/<int:user_id>', methods=['POST'])
 @admin_required
@@ -1156,6 +1349,21 @@ def delete_user(user_id):
     flash(f"Athlete {user.name} and all associated intelligence purged.", "success")
     return redirect(url_for('admin_users'))
 
+
+@app.route('/admin/assign_workout', methods=['POST'])
+@admin_required
+def assign_workout():
+    data = request.json
+    user_id = data.get('user_id')
+    workout_data = data.get('workout') # Muscle, Type, Duration
+    
+    user = User.query.get_or_404(user_id)
+    user.assigned_workout = json.dumps(workout_data)
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': f'Workout assigned to {user.name}'})
+
+
 @app.route('/admin/athlete/<int:user_id>')
 @admin_required
 def admin_athlete_profile(user_id):
@@ -1175,18 +1383,18 @@ def admin_athlete_profile(user_id):
                            weights=weights,
                            dates=dates)
 
-@app.route('/admin/assign_workout', methods=['POST'])
+
+@app.route('/admin/assign_nutrition', methods=['POST'])
 @admin_required
-def assign_workout():
+def assign_nutrition():
     data = request.json
     user_id = data.get('user_id')
-    workout_data = data.get('workout') # Muscle, Type, Duration
+    goal = data.get('goal')
     
     user = User.query.get_or_404(user_id)
-    user.assigned_workout = json.dumps(workout_data)
+    user.goal = goal
     db.session.commit()
-    
-    return jsonify({'success': True, 'message': f'Workout assigned to {user.name}'})
+    return jsonify({'success': True})
 
 @app.route('/admin/modify_nutrition', methods=['POST'])
 @admin_required
@@ -1214,6 +1422,7 @@ def admin_nutrition():
                            foods_count=len(foods),
                            supps_count=len(supps),
                            total_count=len(NUTRITION_DB))
+
 
 @app.route('/admin/workouts')
 @admin_required

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYX COACH | Performance Command</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='coach/css/coach_portal.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="tactical-grid"></div>
+    <div class="coach-layout">
+        <aside class="coach-sidebar">
+            <div class="coach-brand">
+                NYX<span>COACH</span>
+            </div>
+            
+            <nav class="coach-nav">
+                <a href="{{ url_for('coach_dashboard') }}" class="nav-item {% if active_page == 'coach_dash' %}active{% endif %}">
+                    <i class="ph-bold ph-chart-line-up"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item {% if active_page == 'coach_roster' %}active{% endif %}">
+                    <i class="ph-bold ph-users"></i> My Roster
+                </a>
+                <a href="#" class="nav-item {% if active_page == 'coach_programming' %}active{% endif %}">
+                    <i class="ph-bold ph-notebook"></i> Programming
+                </a>
+                <a href="#" class="nav-item {% if active_page == 'coach_intel' %}active{% endif %}">
+                    <i class="ph-bold ph-brain"></i> Intelligence
+                </a>
+            </nav>
+
+            <div class="coach-footer">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom: 1.5rem;">
+                    <div style="width:36px; height:36px; background:#F3F4F6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem;">
+                        {{ session['user'][0]|upper }}
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem; font-weight:700;">Tactical Lead</div>
+                        <div style="font-size:0.6rem; color:var(--coach-text-dim); font-weight:800; text-transform:uppercase;">Level 4 Access</div>
+                    </div>
+                </div>
+                <a href="{{ url_for('coach_logout') }}" style="display:flex; align-items:center; gap:8px; color:var(--danger); text-decoration:none; font-size:0.75rem; font-weight:700;">
+                    <i class="ph-bold ph-sign-out"></i> Terminate Session
+                </a>
+            </div>
+        </aside>
+
+        <main class="coach-main">
+            <header class="coach-header">
+                <div class="header-title">NYX COACH COMMAND</div>
+                
+                <div class="header-actions">
+                    <div class="header-stat">
+                        <span class="label">Total Athletes:</span>
+                        <span class="val">{{ roster_count|default(0) }}</span>
+                    </div>
+                    <div class="header-stat">
+                        <span class="label">Pending Alerts:</span>
+                        <span class="val" style="color: var(--warning);">2</span>
+                    </div>
+                    <div style="width:32px; height:32px; background:#111; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#FFF; font-size:0.8rem; cursor:pointer;">
+                        <i class="ph ph-user"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="coach-viewport">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

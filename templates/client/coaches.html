@@ -8,6 +8,7 @@
 <style>
     :root {
         --accent-blue: #007AFF;
+        --accent-yellow: #FACC15;
         --accent-black: #000000;
         --text-dim: #8E8E93;
         --border-color: #E5E5EA;
@@ -30,75 +31,267 @@
         background-size: 100px 100px;
         display: flex;
         flex-direction: column;
+        animation: fadeIn 0.6s ease-out;
     }
 
-    /* ════ TACTICAL HEADER ════ */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     .terminal-header {
-        margin-bottom: 2.5rem;
+        margin-bottom: 1.5rem;
         display: flex;
         justify-content: space-between;
-        align-items: flex-end;
+        align-items: center;
         flex-shrink: 0;
     }
 
     .brand-intel { font-size: 0.5rem; font-weight: 900; letter-spacing: 5px; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 0.8rem; }
-    .terminal-title { font-size: 3.5rem; font-weight: 900; letter-spacing: -3px; line-height: 0.8; margin: 0; }
+    .terminal-title { font-size: 3rem; font-weight: 900; letter-spacing: -3px; line-height: 0.8; margin: 0; text-transform: uppercase; }
 
-    /* ════ DUAL-PANE ARCHITECTURE ════ */
-    .panes-container {
-        flex: 1;
-        display: flex;
-        gap: 3rem;
-        min-height: 0;
-    }
-
-    /* Pane 1: Command Uplink (Expanded) */
-    .command-uplink {
-        flex: 3;
-        background: white;
+    /* ════ TOP INFO BAR ════ */
+    .top-info-bar {
+        background: #F5F5F7;
         border: 1px solid var(--border-color);
-        border-radius: 32px;
+        border-radius: 16px;
+        padding: 1rem 2rem;
+        margin-bottom: 2.5rem;
         display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        position: relative;
+        align-items: center;
+        gap: 3rem;
+        flex-shrink: 0;
     }
 
-    .uplink-header {
-        padding: 1.5rem 2.5rem;
-        border-bottom: 1px solid var(--border-color);
+    .info-node { display: flex; flex-direction: column; gap: 4px; }
+    .info-label { font-size: 0.55rem; font-weight: 900; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; }
+    .info-value { font-size: 0.9rem; font-weight: 800; color: var(--accent-black); }
+
+    /* ════ MARKETPLACE GRID ════ */
+    .marketplace-controls {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 2rem;
     }
 
-    .uplink-messages {
+    .marketplace-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
         flex: 1;
         overflow-y: auto;
-        padding: 2.5rem;
+        padding: 0.5rem 0.5rem 4rem 0.5rem;
+        scroll-behavior: smooth;
+    }
+
+    .coach-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        padding: 2rem;
+        border-radius: 28px;
+        transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+        cursor: pointer;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        position: relative;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
     }
-    .uplink-messages::-webkit-scrollbar { width: 3px; }
-    .uplink-messages::-webkit-scrollbar-thumb { background: var(--accent-black); }
 
-    .packet { max-width: 70%; padding: 1.2rem 1.8rem; border-radius: 20px; font-size: 0.85rem; line-height: 1.6; }
-    .packet.athlete { align-self: flex-end; background: var(--accent-black); color: white; border-bottom-right-radius: 4px; }
-    .packet.coach { align-self: flex-start; background: var(--bg-canvas); border: 1.5px solid var(--accent-black); border-bottom-left-radius: 4px; }
-    .packet-meta { font-size: 0.55rem; font-weight: 900; opacity: 0.5; margin-top: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+    .coach-card:hover {
+        transform: scale(1.03);
+        border-color: var(--accent-black);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        z-index: 10;
+    }
 
-    .uplink-input {
-        padding: 1.5rem 2.5rem;
-        border-top: 1px solid var(--border-color);
+    .coach-card.recommended {
+        border-color: var(--accent-blue);
+        box-shadow: 0 10px 30px rgba(0, 122, 255, 0.05);
+    }
+
+    .badge-recommended {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: var(--accent-blue);
+        color: white;
+        font-size: 0.55rem;
+        font-weight: 900;
+        padding: 4px 10px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .coach-status {
         display: flex;
-        gap: 1.5rem;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
     }
-    .packet-input { flex: 1; border: none; outline: none; font-weight: 800; font-size: 0.9rem; }
-    .btn-transmit { background: var(--accent-black); color: white; border: none; width: 50px; height: 50px; border-radius: 15px; cursor: pointer; transition: 0.3s; }
-    .btn-transmit:hover { background: var(--accent-blue); transform: scale(1.05); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .status-dot.available { background: #10B981; box-shadow: 0 0 10px #10B981; }
+    .status-dot.busy { background: #666; }
 
-    /* Pane 3: Personnel Dossier (Right) */
+    .coach-name { font-size: 1.6rem; font-weight: 900; margin-bottom: 4px; letter-spacing: -0.5px; }
+    .coach-specialty { font-size: 0.75rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 1rem; }
+    .coach-experience { font-size: 0.7rem; font-weight: 800; color: var(--text-dim); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 6px; }
+
+    .btn-select {
+        background: var(--accent-black);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: 900;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: 0.2s;
+        margin-top: auto;
+    }
+
+    .btn-select:hover { background: var(--accent-blue); transform: scale(1.02); }
+
+    /* Selection State */
+    .marketplace-grid.has-selection .coach-card:not(.selected) { opacity: 0.5; filter: grayscale(0.5); }
+    .coach-card.selected { border: 3px solid var(--accent-black); background: #FAFAFA; }
+    .badge-active {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: #000;
+        color: #FFF;
+        font-size: 0.55rem;
+        font-weight: 950;
+        padding: 4px 10px;
+        border-radius: 6px;
+        letter-spacing: 1.5px;
+    }
+
+    /* Empty State */
+    .empty-coach-card {
+        border: 2px dashed var(--border-color);
+        background: #FAFAFA;
+        border-radius: 28px;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        opacity: 0.8;
+    }
+
+    /* Filter System */
+    .filter-dropdown {
+        background: #FFF;
+        border: 1px solid var(--border-color);
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        outline: none;
+        cursor: pointer;
+        font-family: inherit;
+        min-width: 160px;
+    }
+
+    /* ════ CHAT VIEW (KEEPING BASE BUT CLEANING UP) ════ */
+    .panes-container { flex: 1; display: flex; gap: 2rem; min-height: 0; }
+    .command-uplink { flex: 1; background: white; border: 1px solid var(--border-color); border-radius: 32px; display: flex; flex-direction: column; overflow: hidden; }
+    .uplink-header { padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .uplink-messages { flex: 1; overflow-y: auto; padding: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .packet { max-width: 70%; padding: 1.2rem 1.8rem; border-radius: 24px; font-size: 0.85rem; line-height: 1.6; }
+    .packet.athlete { align-self: flex-end; background: var(--accent-black); color: white; border-bottom-right-radius: 4px; }
+    .packet.coach { align-self: flex-start; background: #F3F4F6; color: black; border-bottom-left-radius: 4px; }
+    .packet-meta { font-size: 0.5rem; font-weight: 900; opacity: 0.5; margin-top: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+    .uplink-input { padding: 1.5rem 2.5rem; border-top: 1px solid var(--border-color); display: flex; gap: 1.5rem; }
+    .packet-input { flex: 1; border: none; outline: none; font-weight: 800; font-size: 0.9rem; }
+
+    /* ════ CUSTOM CONFIRMATION MODAL ════ */
+    .cmd-confirm-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: modalFade 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes modalFade {
+        from { opacity: 0; backdrop-filter: blur(0px); }
+        to { opacity: 1; backdrop-filter: blur(20px); }
+    }
+
+    .cmd-confirm-card {
+        background: white;
+        width: 400px;
+        padding: 3rem;
+        border-radius: 32px;
+        text-align: center;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+    }
+
+    .cmd-confirm-icon {
+        width: 60px;
+        height: 60px;
+        background: #F3F4F6;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 1.5rem;
+        color: var(--accent-black);
+    }
+
+    .cmd-confirm-title {
+        font-weight: 900;
+        font-size: 1.2rem;
+        letter-spacing: -0.5px;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+    }
+
+    .cmd-confirm-msg {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        line-height: 1.6;
+        margin-bottom: 2.5rem;
+    }
+
+    .cmd-confirm-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-confirm {
+        flex: 1;
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 900;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-confirm.primary { background: var(--accent-black); color: white; border: none; }
+    .btn-confirm.secondary { background: #F3F4F6; color: var(--accent-black); border: none; }
+    .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .btn-transmit { background: var(--accent-black); color: white; border: none; width: 50px; height: 50px; border-radius: 15px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+
     .personnel-dossier {
         width: 320px;
         display: flex;
@@ -122,59 +315,102 @@
 {% block content %}
 <div class="terminal-frame">
     
-    <header class="terminal-header">
-        <div>
-            <div class="brand-intel">SIGNAL TRANSCEIVER // NYXFT.V1</div>
-            <h1 class="terminal-title">Signal Terminal</h1>
+    <div class="top-info-bar">
+        <div class="info-node">
+            <div class="info-label">Active Lead</div>
+            <div class="info-value" id="topCoachName">{{ assigned_coach.name if user.coach_id else 'None Assigned' }}</div>
         </div>
-        <div style="text-align: right;">
-            <div style="font-size: 0.5rem; font-weight: 900; color: var(--accent-blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px;">Mission Logic</div>
-            <div style="font-weight: 900; font-size: 1.2rem; letter-spacing: -0.5px;">{{ user.goal }} // {{ user.weight }}KG</div>
+        <div class="info-node">
+            <div class="info-label">Mission Goal</div>
+            <div class="info-value">{{ user.goal|upper if user.goal else 'PENDING' }}</div>
         </div>
-    </header>
+        <div class="info-node">
+            <div class="info-label">Target Weight</div>
+            <div class="info-value">{{ user.weight if user.weight else '--' }} KG</div>
+        </div>
+        <div class="info-node" style="margin-left: auto; text-align: right;">
+            <div class="info-label">Channel Status</div>
+            <div class="info-value" style="color: #10B981;">ENCRYPTED_UPLINK_READY</div>
+        </div>
+    </div>
 
+    {% if not user.coach_id %}
+    <div class="marketplace-controls">
+        <h2 style="font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); margin: 0;">Select Tactical Lead // Units Available</h2>
+        <select class="filter-dropdown" onchange="filterCoaches(this.value)">
+            <option value="all">Specialization: All</option>
+            <option value="Strength">Strength</option>
+            <option value="Fat Loss">Fat Loss</option>
+            <option value="Rehab">Rehab</option>
+        </select>
+    </div>
+
+    <div class="marketplace-grid" id="coachGrid">
+        <!-- EMPTY STATE CARD -->
+        <div class="empty-coach-card">
+            <i class="ph ph-user-circle-dashed" style="font-size: 3rem; color: var(--border-color); margin-bottom: 1rem;"></i>
+            <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 1px; color: var(--text-dim); text-transform: uppercase;">No Coach Assigned</div>
+            <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 8px;">Awaiting Tactical Protocol Initialization.</div>
+        </div>
+
+        {% for coach in coaches %}
+        <div class="coach-card {% if coach.id == 2 %}recommended{% endif %}" 
+             data-specialty="{{ coach.specialization }}" 
+             onclick="selectCard(this, {{ coach.id }})">
+            
+            {% if coach.id == 2 %}<div class="badge-recommended">Recommended</div>{% endif %}
+            
+            <div class="coach-status">
+                <div class="status-dot {% if coach.id % 2 == 0 %}available{% else %}busy{% endif %}"></div>
+                <span>{% if coach.id % 2 == 0 %}Available{% else %}Busy{% endif %}</span>
+            </div>
+
+            <div class="coach-name">{{ coach.name }}</div>
+            <div class="coach-specialty">{{ coach.specialization }}</div>
+            
+            <div class="coach-experience">
+                <i class="ph-bold ph-calendar-check"></i>
+                {{ (coach.id * 2) % 10 + 4 }}+ Years Experience
+            </div>
+
+            <div class="dos-bio" style="margin-bottom: 2rem;">{{ coach.bio[:120] if coach.bio else 'Tactical briefing and personnel dossier pending system initialization...' }}...</div>
+            
+            <button class="btn-select" id="btn-{{ coach.id }}">Select Coach</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- CHAT VIEW: COACH ASSIGNED -->
     <div class="panes-container">
         
-        <!-- PANE 1: COMMAND UPLINK (EXPANDED) -->
         <div class="command-uplink">
             <div class="uplink-header">
-                <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 1px;">ENCRYPTED CHANNEL // ALPHA-01</div>
-                <div style="font-size: 0.6rem; font-weight: 900; color: var(--text-dim);">TERMINAL ID: 882-991-X</div>
+                <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 1px;">ENCRYPTED CHANNEL // {{ assigned_coach.nickname|upper }}</div>
+                <button class="btn-select" style="font-size: 0.6rem; padding: 6px 12px;" onclick="reassignCoach()">Change Lead</button>
             </div>
 
             <div class="uplink-messages" id="chatStream">
-                {% for msg in messages %}
-                <div class="packet {{ 'athlete' if msg.sender == 'athlete' else 'coach' }}">
-                    <div>{{ msg.content }}</div>
-                    <div class="packet-meta">{{ msg.timestamp.strftime('%H:%M') }} // {{ 'ATHLETE' if msg.sender == 'athlete' else 'COMMAND UPLINK' }}</div>
-                </div>
-                {% else %}
-                <div style="text-align: center; color: var(--text-dim); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; margin-top: 4rem;">
-                    [ TERMINAL INITIALIZED ]<br>NO DATA PACKETS DETECTED. START UPLINK.
-                </div>
-                {% endfor %}
+                <!-- Messages loaded via JS -->
             </div>
 
             <div class="uplink-input">
-                <input type="text" id="msgInput" class="packet-input" placeholder="Transmit packet to Alpha Intel..." required autocomplete="off">
+                <input type="text" id="msgInput" class="packet-input" placeholder="Transmit packet to Tactical Lead..." required autocomplete="off">
                 <button type="button" class="btn-transmit" id="sendBtn">
                     <i class="ph-bold ph-paper-plane-right" style="font-size: 1.2rem;"></i>
                 </button>
             </div>
         </div>
 
-        <!-- PANE 3: PERSONNEL DOSSIER -->
         <div class="personnel-dossier">
             <div class="dossier-card">
                 <div class="dos-tag">Personnel Bio</div>
-                <div class="dos-title">Alpha Intel</div>
-                <div class="dos-bio">Specialist in neural-load optimization and structural evolution. Current mission: Overseeing the {{ user.goal }} architecture for Athlete #{{ user.id }}.</div>
+                <div class="dos-title">{{ assigned_coach.name }}</div>
+                <div class="dos-bio">{{ assigned_coach.bio }}</div>
             </div>
 
             <div class="dossier-card" style="background: var(--accent-black); color: white; border: none;">
-                <div class="dos-tag" style="color: var(--accent-blue);">Tactical Specialty</div>
-                <div class="dos-title" style="font-size: 1.5rem;">Hypertrophy Evolution</div>
-                <div style="font-size: 0.5rem; font-weight: 900; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-top: 1rem;">Primary Competency</div>
+                <div class="dos-tag" style="color: var(--accent-yellow);">Tactical Specialty</div>
+                <div class="dos-title" style="font-size: 1.5rem;">{{ assigned_coach.specialization }}</div>
             </div>
 
             <div class="dossier-card">
@@ -185,46 +421,56 @@
         </div>
 
     </div>
+    {% endif %}
 
+</div>
+
+<!-- CUSTOM COMMAND CONFIRMATION -->
+<div id="cmdConfirmModal" class="cmd-confirm-overlay">
+    <div class="cmd-confirm-card">
+        <div class="cmd-confirm-icon">
+            <i class="ph-bold ph-shield-check"></i>
+        </div>
+        <div class="cmd-confirm-title">Command Authorization</div>
+        <div id="cmdConfirmMsg" class="cmd-confirm-msg">Initializing coordination protocol...</div>
+        <div class="cmd-confirm-actions">
+            <button class="btn-confirm secondary" onclick="closeCommandConfirm()">Cancel</button>
+            <button id="cmdConfirmBtn" class="btn-confirm primary">Authorize</button>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        {% if user.coach_id %}
         const msgInput = document.getElementById('msgInput');
         const chatStream = document.getElementById('chatStream');
         const sendBtn = document.getElementById('sendBtn');
         const userId = {{ user.id }};
 
-        // Initial Scroll
-        chatStream.scrollTop = chatStream.scrollHeight;
-
-        // --- FETCH HISTORY ---
         async function loadHistory() {
             const res = await fetch(`/api/chat/history/${userId}`);
             const data = await res.json();
             
-            if (chatStream.children.length !== data.length) {
-                chatStream.innerHTML = '';
-                if (data.length === 0) {
-                    chatStream.innerHTML = '<div style="text-align: center; color: var(--text-dim); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; margin-top: 4rem;">[ TERMINAL INITIALIZED ]<br>NO DATA PACKETS DETECTED. START UPLINK.</div>';
-                } else {
-                    data.forEach(m => {
-                        const packet = document.createElement('div');
-                        packet.className = `packet ${m.sender === 'athlete' ? 'athlete' : 'coach'}`;
-                        packet.innerHTML = `
-                            <div>${m.content}</div>
-                            <div class="packet-meta">${m.timestamp} // ${m.sender === 'athlete' ? 'ATHLETE' : 'COMMAND UPLINK'}</div>
-                        `;
-                        chatStream.appendChild(packet);
-                    });
-                }
-                chatStream.scrollTop = chatStream.scrollHeight;
+            chatStream.innerHTML = '';
+            if (data.length === 0) {
+                chatStream.innerHTML = '<div style="text-align: center; color: var(--text-dim); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; margin-top: 4rem;">[ TERMINAL INITIALIZED ]<br>START UPLINK WITH COMMAND.</div>';
+            } else {
+                data.forEach(m => {
+                    const packet = document.createElement('div');
+                    packet.className = `packet ${m.sender === 'athlete' ? 'athlete' : 'coach'}`;
+                    packet.innerHTML = `
+                        <div>${m.content}</div>
+                        <div class="packet-meta">${m.timestamp} // ${m.sender === 'athlete' ? 'ATHLETE' : 'COMMAND UPLINK'}</div>
+                    `;
+                    chatStream.appendChild(packet);
+                });
             }
+            chatStream.scrollTop = chatStream.scrollHeight;
         }
 
-        // --- SEND SIGNAL ---
         const sendSignal = async () => {
             const val = msgInput.value.trim();
             if (!val) return;
@@ -245,16 +491,100 @@
             }
         };
 
-        // --- POLLING ---
         setInterval(loadHistory, 3000);
-
-        // Initial Load
         loadHistory();
 
         sendBtn.addEventListener('click', sendSignal);
-        msgInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendSignal();
-        });
+        msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendSignal(); });
+        {% endif %}
     });
+
+    let selectedCoachId = null;
+
+    function selectCard(card, coachId) {
+        // Visual feedback
+        const grid = document.getElementById('coachGrid');
+        const cards = grid.querySelectorAll('.coach-card');
+        
+        cards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        grid.classList.add('has-selection');
+
+        // Add Active Badge if not present
+        const oldBadge = grid.querySelector('.badge-active');
+        if(oldBadge) oldBadge.remove();
+        
+        const badge = document.createElement('div');
+        badge.className = 'badge-active';
+        badge.innerText = 'ACTIVE';
+        card.appendChild(badge);
+
+        // Update buttons
+        cards.forEach(c => {
+            const btn = c.querySelector('.btn-select');
+            btn.innerText = 'Select Coach';
+        });
+        card.querySelector('.btn-select').innerText = 'Assigned';
+
+        // Actual selection trigger after a slight delay for feel
+        selectedCoachId = coachId;
+        setTimeout(() => {
+            showCommandConfirm(
+                `Initialize coordination protocol with ${card.querySelector('.coach-name').innerText}?`,
+                () => executeSelection(coachId)
+            );
+        }, 300);
+    }
+
+    function showCommandConfirm(msg, onConfirm) {
+        const modal = document.getElementById('cmdConfirmModal');
+        document.getElementById('cmdConfirmMsg').innerText = msg;
+        document.getElementById('cmdConfirmBtn').onclick = () => {
+            onConfirm();
+            closeCommandConfirm();
+        };
+        modal.style.display = 'flex';
+    }
+
+    function closeCommandConfirm() {
+        document.getElementById('cmdConfirmModal').style.display = 'none';
+    }
+
+    async function executeSelection(coachId) {
+        const res = await fetch('/api/coach/select', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({coach_id: coachId})
+        });
+        if(res.ok) window.location.reload();
+    }
+
+    function filterCoaches(type) {
+        const grid = document.getElementById('coachGrid');
+        const cards = grid.querySelectorAll('.coach-card');
+        
+        cards.forEach(card => {
+            const specialty = card.getAttribute('data-specialty').toLowerCase();
+            if(type === 'all' || specialty.includes(type.toLowerCase())) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    async function reassignCoach() {
+        showCommandConfirm(
+            'Request Tactical Lead Reassignment? Current uplink will be severed.',
+            async () => {
+                const res = await fetch('/api/coach/select', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({coach_id: null})
+                });
+                if(res.ok) window.location.reload();
+            }
+        );
+    }
 </script>
 {% endblock %}
