@@ -3,173 +3,549 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Authentication | NYXFT Infrastructure</title>
+    <title>NYX FT | Admin Login</title>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #000000;
-            --text: #FFFFFF;
-            --accent: #007AFF;
-            --dim: #515154;
-            --border: #2C2C2E;
+            --bg: #FFFFFF;
+            --text-main: #000000;
+            --text-muted: #8E8E93;
+            --grid-line: rgba(0, 0, 0, 0.03);
+            --border-color: #E5E5EA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             background-color: var(--bg);
-            color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
             height: 100vh;
+            width: 100vw;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            position: relative;
             overflow: hidden;
         }
 
-        .login-frame {
+        /* Background Grid */
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 150px 150px;
+            background-position: center center;
+            z-index: -2;
+        }
+
+        .bg-crosshairs {
+            position: absolute;
+            inset: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150"><path d="M71,75 h8 M75,71 v8" stroke="rgba(0,0,0,0.15)" stroke-width="1"/></svg>');
+            background-size: 150px 150px;
+            background-position: center center;
+            z-index: -1;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 400px;
-            padding: 3rem;
-            animation: terminalEntry 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 2.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
         }
 
-        @keyframes terminalEntry {
-            from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
-            to { opacity: 1; transform: translateY(0); filter: blur(0); }
-        }
-
-        .brand-header {
-            margin-bottom: 3rem;
-            text-align: center;
-        }
-
-        .brand-tag {
-            font-size: 0.6rem;
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
             font-weight: 900;
-            letter-spacing: 5px;
-            color: var(--accent);
+            letter-spacing: -1px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo .ft {
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            margin-left: 6px;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            margin-bottom: 0.8rem;
         }
 
-        .brand-title {
-            font-size: 2.5rem;
+        /* Center Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            z-index: 5;
+            overflow-y: auto;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+            background: transparent;
+            padding: 2rem;
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            background: #F4F4F5;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1.5rem auto;
+            font-size: 1.8rem;
+        }
+
+        .eyebrow {
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.8rem;
             font-weight: 900;
-            letter-spacing: -2px;
-            margin: 0;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 2.5rem;
+            font-weight: 500;
+            padding: 0 1rem;
+        }
+
+        /* Form */
+        form {
+            text-align: left;
         }
 
         .input-group {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .input-group label {
             display: block;
-            font-size: 0.6rem;
-            font-weight: 900;
-            color: var(--dim);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
+            margin-bottom: 0.5rem;
         }
 
-        .admin-input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 2.5px solid var(--border);
-            color: white;
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.left-icon {
+            position: absolute;
+            left: 1rem;
             font-size: 1.2rem;
-            font-weight: 700;
-            outline: none;
-            padding: 8px 0;
-            transition: 0.3s;
+            color: var(--text-muted);
         }
 
-        .admin-input:focus {
-            border-color: var(--accent);
+        .input-wrapper i.right-icon {
+            position: absolute;
+            right: 1rem;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            cursor: pointer;
         }
 
-        .btn-auth {
+        .input-wrapper input {
             width: 100%;
-            background: var(--text);
-            color: var(--bg);
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #000;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            accent-color: #000;
+            width: 16px;
+            height: 16px;
+        }
+
+        .forgot-link {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #000;
+            color: #fff;
             border: none;
             padding: 1.2rem;
-            border-radius: 15px;
-            font-weight: 900;
-            font-size: 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 800;
             letter-spacing: 2px;
             text-transform: uppercase;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
             cursor: pointer;
-            transition: 0.3s;
-            margin-top: 1rem;
+            transition: transform 0.2s;
+            margin-bottom: 2rem;
         }
 
-        .btn-auth:hover {
-            background: var(--accent);
-            color: white;
+        .submit-btn:hover {
             transform: translateY(-2px);
         }
 
-        .status-msg {
+        /* Privileges section */
+        .divider-container {
+            position: relative;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .divider-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .divider-text {
+            background: #fff;
+            padding: 0 1rem;
             font-size: 0.7rem;
             font-weight: 800;
-            color: #FF3B30;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 2;
+        }
+
+        .privileges-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
             text-align: center;
-            margin-top: 1.5rem;
+        }
+        
+        .privilege-item {
+            position: relative;
+            padding: 0 1rem;
+        }
+        
+        .privilege-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 10%;
+            height: 80%;
+            width: 1px;
+            background: var(--border-color);
+        }
+
+        .privilege-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-main);
+        }
+
+        .privilege-item h4 {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+            color: var(--text-main);
+        }
+
+        .privilege-item p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .shield-icon-lg {
+            font-size: 1.8rem;
+        }
+
+        .security-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .security-text strong {
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .security-text span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .bottom-right {
+            text-align: right;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        /* Status msg */
+        .status-msg {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             opacity: 0;
             transition: 0.3s;
         }
-
         .status-msg.visible { opacity: 1; }
-
     </style>
 </head>
 <body>
 
-    <div class="login-frame">
-        <header class="brand-header">
-            <div class="brand-tag">INFRASTRUCTURE OVERSIGHT</div>
-            <h1 class="brand-title">NYXFT ADMIN</h1>
-        </header>
+    <div class="bg-grid"></div>
+    <div class="bg-crosshairs"></div>
 
-        <form id="adminForm" onsubmit="handleLogin(event)">
-            <div class="input-group">
-                <label>Administrator ID</label>
-                <input type="email" id="email" class="admin-input" required placeholder="admin@nyxft.com">
+    <div class="top-bar">
+        <a href="/" class="brand-logo">
+            NYX <span class="ft">FT</span>
+        </a>
+        <div class="top-right">
+            <i class="ph ph-shield-check"></i> SECURE ADMIN ACCESS
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="login-container">
+            <div class="icon-box">
+                <i class="ph ph-lock-key"></i>
+            </div>
+            <div class="eyebrow">ADMIN LOGIN</div>
+            <h1>WELCOME BACK,<br>ADMIN.</h1>
+            <p class="subtitle">Access the NYX FT admin portal to manage users,<br>workouts, content and system performance.</p>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>ADMIN EMAIL</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-user left-icon"></i>
+                        <input type="email" id="email" placeholder="Enter admin email" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>PASSWORD</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-lock left-icon"></i>
+                        <input type="password" id="password" placeholder="Enter password" required>
+                        <i class="ph ph-eye right-icon" id="togglePassword"></i>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox">
+                        Remember this device
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    SIGN IN TO DASHBOARD <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </form>
+
+            <div id="statusMsg" class="status-msg"></div>
+
+            <div class="divider-container">
+                <span class="divider-text">ADMIN PRIVILEGES</span>
             </div>
 
-            <div class="input-group">
-                <label>Security Passcode</label>
-                <input type="password" id="password" class="admin-input" required placeholder="••••••••">
+            <div class="privileges-grid">
+                <div class="privilege-item">
+                    <i class="ph ph-users"></i>
+                    <h4>USER MANAGEMENT</h4>
+                    <p>Manage all users</p>
+                </div>
+                <div class="privilege-item">
+                    <i class="ph ph-barbell"></i>
+                    <h4>SYSTEM CONTROL</h4>
+                    <p>Manage workouts & content</p>
+                </div>
+                <div class="privilege-item">
+                    <i class="ph ph-chart-bar"></i>
+                    <h4>ANALYTICS OVERVIEW</h4>
+                    <p>Real-time insights</p>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <button type="submit" class="btn-auth">AUTHORIZE ACCESS</button>
-            <div id="statusMsg" class="status-msg">AUTHORIZATION FAILED</div>
-        </form>
+    <div class="bottom-bar">
+        <div class="bottom-left">
+            <i class="ph ph-shield-check shield-icon-lg"></i>
+            <div class="security-text">
+                <strong>Protected & Encrypted</strong>
+                <span>Enterprise grade security</span>
+            </div>
+        </div>
+        
+        <div class="bottom-right">
+            &copy; 2026 NYX FT. All rights reserved.<br>
+            Admin access only.
+        </div>
     </div>
 
     <script>
-        async function handleLogin(e) {
+        // Password toggle logic
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        
+        togglePassword.addEventListener('click', function (e) {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('ph-eye');
+            this.classList.toggle('ph-eye-slash');
+        });
+
+        // Login Logic
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const msg = document.getElementById('statusMsg');
+            const btn = e.target.querySelector('button');
+            const statusMsg = document.getElementById('statusMsg');
+            
+            btn.style.opacity = '0.7';
+            btn.innerHTML = 'AUTHENTICATING...';
+            
+            const payload = {
+                action: 'login',
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
 
-            const res = await fetch('/admin/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (res.ok) {
-                window.location.href = '/admin';
-            } else {
-                msg.classList.add('visible');
-                setTimeout(() => msg.classList.remove('visible'), 3000);
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.innerHTML = 'AUTHENTICATED';
+                    statusMsg.innerText = 'ACCESS GRANTED. REDIRECTING...';
+                    statusMsg.style.color = '#10B981';
+                    statusMsg.classList.add('visible');
+                    setTimeout(() => window.location.href = data.redirect, 800);
+                } else {
+                    btn.style.opacity = '1';
+                    btn.innerHTML = 'SIGN IN TO DASHBOARD <i class="ph-bold ph-arrow-right"></i>';
+                    statusMsg.innerText = data.message || 'AUTHENTICATION FAILED';
+                    statusMsg.style.color = '#ff0000';
+                    statusMsg.classList.add('visible');
+                    setTimeout(() => statusMsg.classList.remove('visible'), 3000);
+                }
+            } catch (err) {
+                btn.style.opacity = '1';
+                btn.innerHTML = 'SIGN IN TO DASHBOARD <i class="ph-bold ph-arrow-right"></i>';
+                statusMsg.innerText = 'CONNECTION ERROR';
+                statusMsg.style.color = '#ff0000';
+                statusMsg.classList.add('visible');
             }
-        }
+        });
     </script>
 </body>
 </html>

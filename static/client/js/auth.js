@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const authForm = document.getElementById('authForm');
     const alertBox = document.getElementById('alertBox');
 
-    const showAlert = (message) => {
+    window.showAlert = (message) => {
         if (alertBox) {
             alertBox.classList.add('visible');
             alertBox.textContent = message;

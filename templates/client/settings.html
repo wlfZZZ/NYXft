@@ -269,7 +269,7 @@
     }
 
     function confirmPurge() {
-        if (confirm("Are you sure you want to delete all records?")) alert("Archives Purged.");
+        if (confirm("Are you sure you want to delete all records?")) showNotify("Archives Purged.", "success");
     }
 
     updateSummary();

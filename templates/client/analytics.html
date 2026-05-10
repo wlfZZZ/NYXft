@@ -214,18 +214,6 @@
                 <div style="font-size: 0.45rem; font-weight: 900; opacity: 0.4; text-transform: uppercase; letter-spacing: 1px;">Completion Protocol</div>
             </div>
 
-            <div class="widget-box is-locked" style="flex: 1;">
-                <div class="canvas-title">Strength Radar</div>
-                <div class="chart-container">
-                    <canvas id="radarChart"></canvas>
-                </div>
-                {% if user.plan == 'Starter' %}
-                <div class="lock-shield">
-                    <i class="ph-fill ph-lock-key"></i>
-                    <h4>PRO MODE</h4>
-                </div>
-                {% endif %}
-            </div>
 
             <div class="widget-box" style="background: var(--bg-subtle); flex: 0.8;">
                 <div class="canvas-title">AI Insights</div>
@@ -304,27 +292,5 @@
         }
     });
 
-    if (document.getElementById('radarChart')) {
-        const radarCtx = document.getElementById('radarChart').getContext('2d');
-        new Chart(radarCtx, {
-            type: 'radar',
-            data: {
-                labels: ['Push', 'Pull', 'Legs'],
-                datasets: [{
-                    data: [rawData.volume.Push, rawData.volume.Pull, rawData.volume.Legs],
-                    backgroundColor: 'rgba(0, 122, 255, 0.1)',
-                    borderColor: '#007AFF',
-                    borderWidth: 1.5
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    r: { grid: { color: '#F2F2F7' }, ticks: { display: false }, pointLabels: { font: { weight: '900', size: 8 } } }
-                }
-            }
-        });
-    }
 </script>
 {% endblock %}

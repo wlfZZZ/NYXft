@@ -3,349 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYXFT | WHERE CODE MEETS PERFORMANCE</title>
+    <title>NYX FT | Precision Training</title>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;700;900&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #FFFFFF;
-            --text: #000000;
-            --text-dim: #636366;
-            --accent: #007AFF;
-            --grid: rgba(0,0,0,0.03);
-            --border: #F2F2F7;
+            --text-main: #000000;
+            --text-muted: #8E8E93;
+            --accent-green: #A3FF12;
+            --grid-line: rgba(0, 0, 0, 0.04);
+            --crosshair: rgba(0, 0, 0, 0.15);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
         }
 
         /* ════ BACKGROUND ARCHITECTURE ════ */
-        .system-grid {
-            position: fixed;
+        .bg-grid {
+            position: absolute;
             inset: 0;
             background-image: 
-                linear-gradient(var(--grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-            background-size: 100px 100px;
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 200px 200px;
+            background-position: center center;
+            z-index: -2;
+        }
+
+        .bg-crosshairs {
+            position: absolute;
+            inset: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><path d="M96,100 h8 M100,96 v8" stroke="rgba(0,0,0,0.2)" stroke-width="1"/></svg>');
+            background-size: 200px 200px;
+            background-position: center center;
             z-index: -1;
         }
 
-        /* ════ PERFORMANCE TICKER ════ */
-        .perf-ticker {
-            position: fixed;
-            top: 72px; width: 100%;
-            background: #000;
-            color: #fff;
-            padding: 8px 0;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            overflow: hidden;
-            white-space: nowrap;
-            z-index: 999;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .ticker-content {
-            display: inline-block;
-            animation: tickerMove 30s linear infinite;
-        }
-
-        @keyframes tickerMove {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* ════ NAVBAR ════ */
-        nav {
-            position: fixed;
-            top: 0; width: 100%;
-            padding: 1.25rem 5%;
+        /* ════ HEADER ════ */
+        header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2.5rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(20px);
-            z-index: 1001;
-            border-bottom: 1px solid var(--border);
+            z-index: 10;
         }
 
-        .logo { font-family: 'Archivo Black', sans-serif; font-size: 1.5rem; letter-spacing: -2px; }
-        .nav-links { display: flex; gap: 2rem; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* ════ HERO ════ */
-        .hero {
-            height: 100vh;
+        .brand-logo {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo .ft {
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            margin-left: 6px;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .link-login {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .link-login:hover {
+            color: var(--text-muted);
+        }
+
+        .btn-join {
+            background: #000;
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+
+        .btn-join:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ════ MAIN CENTER MODULE ════ */
+        main {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 0 5%;
+            z-index: 5;
+        }
+
+        .center-module {
             position: relative;
+            padding: 4rem 6rem;
+            text-align: center;
         }
 
-        .hero-tagline {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: clamp(2.5rem, 9vw, 6rem);
-            line-height: 1;
-            letter-spacing: -3px;
-            margin-bottom: 2rem;
+        .corner {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-color: rgba(0, 0, 0, 0.3);
+            border-style: solid;
+        }
+
+        .corner.tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
+        .corner.tr { top: 0; right: 0; border-width: 1px 1px 0 0; }
+        .corner.bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+        .corner.br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+
+        .module-eyebrow {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 4px;
             text-transform: uppercase;
+            color: var(--text-main);
+            margin-bottom: 2.5rem;
         }
 
-        .hero-subtext {
-            max-width: 650px;
-            font-size: 1rem;
-            line-height: 1.6;
-            color: var(--text-dim);
-            margin-bottom: 3rem;
+        .module-title {
+            font-size: 5rem;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 2rem;
         }
 
-        .btn-cta {
-            background: #000;
-            color: #fff;
-            text-decoration: none;
-            padding: 1.2rem 2.5rem;
-            border-radius: 12px;
+        .module-title .bold {
             font-weight: 900;
-            font-size: 0.8rem;
+            display: block;
+        }
+
+        .module-title .light {
+            font-weight: 400;
+            display: block;
+        }
+
+        .module-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            max-width: 400px;
+            margin: 0 auto 3rem auto;
+            font-weight: 500;
+        }
+
+        .module-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
             letter-spacing: 2px;
             text-transform: uppercase;
-            transition: 0.3s;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
         }
 
-        .btn-cta:hover { transform: translateY(-5px); background: var(--accent); }
-
-        .system-hud-data {
-            position: absolute;
-            bottom: 4rem; right: 5%;
-            text-align: right;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: var(--text-dim);
-            letter-spacing: 2px;
-        }
-
-        /* ════ FEATURES ════ */
-        .feature-matrix {
-            padding: 10rem 10%;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .module-card {
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            padding: 3rem;
-            border-radius: 32px;
-            transition: 0.4s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .module-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--accent); opacity: 0; transition: 0.3s;
-        }
-
-        .module-card:hover { transform: translateY(-10px); border-color: #000; }
-        .module-card:hover::before { opacity: 1; }
-
-        .mod-tag { font-size: 0.6rem; font-weight: 900; color: var(--accent); letter-spacing: 2px; margin-bottom: 1rem; display: block; }
-        .mod-title { font-family: 'Archivo Black', sans-serif; font-size: 1.2rem; margin-bottom: 1rem; text-transform: uppercase; }
-        .mod-desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
-
-        /* ════ FOOTER ════ */
-        footer {
+        .btn-primary {
             background: #000;
             color: #fff;
-            padding: 5rem 10% 2rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid #000;
         }
 
-        .footer-top {
-            display: grid;
-            grid-template-columns: 2fr repeat(4, 1fr);
-            gap: 2rem;
-            margin-bottom: 4rem;
-            text-align: left;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        .footer-brand .logo { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .footer-slogan { font-size: 0.65rem; font-weight: 800; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+        .btn-secondary {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
 
-        .footer-col h4 { font-family: 'Archivo Black', sans-serif; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: #FFF; text-transform: uppercase; }
-        .footer-col ul { list-style: none; }
-        .footer-col ul li { margin-bottom: 0.75rem; }
-        .footer-col ul li a { text-decoration: none; color: var(--text-dim); font-size: 0.75rem; font-weight: 700; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .footer-col ul li a:hover { color: #FFF; }
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
 
-        .footer-divider { height: 1px; background: rgba(255,255,255,0.1); margin-bottom: 2rem; }
+        /* ════ SOCIAL LINKS ════ */
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
 
-        .footer-bottom {
+        .social-text-link {
+            color: var(--text-main);
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            opacity: 0.5;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .social-text-link:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+
+        .social-text-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background: var(--text-main);
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .social-text-link:hover::after {
+            width: 100%;
+        }
+
+        /* ════ BOTTOM BAR ════ */
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            z-index: 10;
+        }
+
+        .secure-info {
             display: flex;
             flex-direction: column;
+            gap: 8px;
+        }
+
+        .secure-title {
+            display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 8px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        .social-circle-list { display: flex; gap: 1rem; }
-        .social-circle {
-            width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; color: #FFF; transition: 0.3s; cursor: pointer;
+        .secure-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-main);
+            border-radius: 50%;
         }
-        .social-circle:hover { background: #FFF; color: #000; border-color: #FFF; }
 
-        .copyright { font-size: 0.65rem; font-weight: 700; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+        .secure-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
 
+        .bottom-center-text {
+            position: absolute;
+            left: 50%;
+            bottom: 2.5rem;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="system-grid"></div>
+    <div class="bg-grid fade-in"></div>
+    <div class="bg-crosshairs fade-in"></div>
 
-    <nav>
-        <div class="logo">NYXFT</div>
-        <div class="nav-links">
-            <a href="/">Home</a>
-            {% if user %}
-                <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                <a href="javascript:void(0)" id="logoutBtn">Logout</a>
-            {% else %}
-                <a href="{{ url_for('auth') }}">Login</a>
-            {% endif %}
-        </div>
-    </nav>
-
-    <div class="perf-ticker">
-        <div class="ticker-content">
-            TOTAL VOLUME MOVED: 1,420,512 KG // GLOBAL CONSISTENCY: 89.4% // ACTIVE PROTOCOLS: 4,210 // BIOMETRIC SYNC: NOMINAL // SYSTEM VERSION: 2.1.0-STABLE // 
-            TOTAL VOLUME MOVED: 1,420,512 KG // GLOBAL CONSISTENCY: 89.4% // ACTIVE PROTOCOLS: 4,210 // BIOMETRIC SYNC: NOMINAL // SYSTEM VERSION: 2.1.0-STABLE // 
-        </div>
-    </div>
-
-    <header class="hero">
-        <h1 class="hero-tagline">WHERE CODE<br>MEETS PERFORMANCE</h1>
-        <p class="hero-subtext">
-            The ultimate structured fitness operating system. Integrate training, nutrition, and biometrics into a single unified framework for measurable excellence.
-        </p>
-        <a href="{{ url_for('auth') if not user else url_for('dashboard') }}" class="btn-cta">
-            {{ 'Enter System' if not user else 'Open Dashboard' }} <i class="ph-bold ph-arrow-right"></i>
+    <header class="fade-in">
+        <a href="/" class="brand-logo">
+            <span class="nyx">NYX</span><span class="ft">FT</span>
         </a>
-
-        <div class="system-hud-data">
-            SECTOR: HOME // NODE: 0x2A4<br>
-            TIME: <span id="sysTime">00:00:00</span>
+        <div class="header-actions">
+            {% if session.get('user') %}
+                <a href="{{ url_for('dashboard') }}" class="link-login">DASHBOARD</a>
+            {% else %}
+                <a href="{{ url_for('auth', mode='login') }}" class="link-login">LOG IN</a>
+                <a href="{{ url_for('auth', mode='signup') }}" class="btn-join">JOIN NYX FT</a>
+            {% endif %}
         </div>
     </header>
 
-    <section class="feature-matrix">
-        <div class="module-card">
-            <span class="mod-tag">[MOD-ALPHA]</span>
-            <h3 class="mod-title">PR ARCHIVE</h3>
-            <p class="mod-desc">Surgical tracking of strength progression across all major protocols.</p>
-        </div>
-        <div class="module-card">
-            <span class="mod-tag">[MOD-BETA]</span>
-            <h3 class="mod-title">BIOMETRIC GRID</h3>
-            <p class="mod-desc">Visual evolution mapping of your biological mass and composition trends.</p>
-        </div>
-        <div class="module-card">
-            <span class="mod-tag">[MOD-GAMMA]</span>
-            <h3 class="mod-title">FUEL LOGIC</h3>
-            <p class="mod-desc">Algorithmic nutrition tracking calibrated to your active tactical goals.</p>
-        </div>
-        <div class="module-card">
-            <span class="mod-tag">[MOD-DELTA]</span>
-            <h3 class="mod-title">COMMAND HUB</h3>
-            <p class="mod-desc">Centralized oversight of all movement, consistency, and daily execution.</p>
-        </div>
-    </section>
+    <main class="fade-in">
+        <div class="center-module">
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
 
-    <footer>
-        <div class="footer-top">
-            <div class="footer-brand">
-                <div class="logo">NYXFT</div>
-                <div class="footer-slogan">The Performance Operating System</div>
+            <div class="module-eyebrow">PRECISION TRAINING. PEAK PERFORMANCE.</div>
+            
+            <h1 class="module-title">
+                <span class="bold">ENGINEER</span>
+                <span class="bold">YOUR BEST.</span>
+                <span class="light">EVERY DAY.</span>
+            </h1>
+            
+            <p class="module-desc">
+                A precision-engineered fitness ecosystem<br>to optimize training, track progress,<br>and unlock your full potential.
+            </p>
+            
+            <div class="module-actions">
+                <a href="{{ url_for('auth', mode='signup') }}" class="btn-primary">
+                    INITIATE PROTOCOL <i class="ph-bold ph-arrow-right"></i>
+                </a>
+                <a href="{{ url_for('auth', mode='login') }}" class="btn-secondary">
+                    SYSTEM OVERVIEW
+                </a>
             </div>
-            <div class="footer-col">
-                <h4>Training</h4>
-                <ul>
-                    <li><a href="#">Workout DB</a></li>
-                    <li><a href="#">PR Tracker</a></li>
-                    <li><a href="#">Training Styles</a></li>
-                </ul>
+        </div>
+    </main>
+
+    <div class="bottom-bar fade-in">
+        <div class="secure-info">
+            <div class="secure-title">
+                <div class="secure-dot"></div>
+                SYSTEM SECURE
             </div>
-            <div class="footer-col">
-                <h4>Fuel</h4>
-                <ul>
-                    <li><a href="#">Nutrition OS</a></li>
-                    <li><a href="#">Food Database</a></li>
-                    <li><a href="#">Supp Sync</a></li>
-                </ul>
+            <div class="secure-desc">
+                256-bit encrypted. Your data is always private.
             </div>
-            <div class="footer-col">
-                <h4>System</h4>
-                <ul>
-                    <li><a href="#">Command Hub</a></li>
-                    <li><a href="#">Biometric Grid</a></li>
-                    <li><a href="#">Activity Feed</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Company</h4>
-                <ul>
-                    <li><a href="#">About NYX</a></li>
-                    <li><a href="#">Mission</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-            </div>
+        </div>
+        
+        <div class="bottom-center-text">
+            SCIENCE. SYSTEM. STRENGTH.
         </div>
 
-        <div class="footer-divider"></div>
-
-        <div class="footer-bottom">
-            <div class="social-circle-list">
-                <div class="social-circle"><i class="ph-fill ph-whatsapp-logo"></i></div>
-                <div class="social-circle"><i class="ph-fill ph-instagram-logo"></i></div>
-                <div class="social-circle"><i class="ph-fill ph-youtube-logo"></i></div>
-            </div>
-            <div class="copyright">© 2026 NYXFT. All rights reserved. // System Version 2.1.0</div>
+        <div class="social-links">
+            <a href="#" class="social-text-link">Instagram</a>
+            <a href="#" class="social-text-link">WhatsApp</a>
+            <a href="#" class="social-text-link">YouTube</a>
         </div>
-    </footer>
+    </div>
 
-    <script>
-        // System Time
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('sysTime').innerText = now.toTimeString().split(' ')[0];
-        }, 1000);
-
-        // Logout
-        const lbtn = document.getElementById('logoutBtn');
-        if (lbtn) {
-            lbtn.onclick = async () => {
-                await fetch('/api/logout', { method: 'POST' });
-                location.reload();
-            };
-        }
-    </script>
 </body>
 </html>

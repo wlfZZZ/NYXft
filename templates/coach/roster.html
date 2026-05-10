@@ -1,5 +1,6 @@
 {% extends "coach/coach_base.html" %}
-{% set active_page = 'coach_dash' %}
+{% set active_page = 'coach_roster' %}
+
 {% block extra_css %}
 <style>
     .roster-controls {
@@ -36,7 +37,6 @@
         color: var(--coach-text-dim);
     }
     
-    /* Status Engine Styles */
     .status-badge {
         display: flex;
         align-items: center;
@@ -72,32 +72,9 @@
 {% endblock %}
 
 {% block content %}
-<!-- SECTION 1: UNIT OVERVIEW -->
-<div class="stat-grid">
-    <div class="stat-card">
-        <span class="label">Total Athletes</span>
-        <div class="value">{{ roster_count }}</div>
-        <div class="trend up">+12% Signal Strength</div>
-    </div>
-    <div class="stat-card">
-        <span class="label">Active Athletes</span>
-        <div class="value">{{ roster_count }}</div>
-        <div class="trend" style="color:var(--coach-text-dim);">All Units Nominal</div>
-    </div>
-    <div class="stat-card">
-        <span class="label">Avg Consistency</span>
-        <div class="value">94.2%</div>
-        <div class="trend up">+2.1% This Week</div>
-    </div>
-</div>
-
-<!-- SECTION 2: MY ROSTER -->
 <div class="roster-header">
-    <h2>Performance Roster</h2>
-    <div style="display:flex; gap:10px;">
-        <a href="{{ url_for('coach_roster') }}" class="btn-pro primary" style="font-size:0.7rem;">View Full Roster</a>
-        <div class="btn-pro secondary" onclick="exportRoster()">Export Roster</div>
-    </div>
+    <h1>Athlete Roster</h1>
+    <div class="btn-pro secondary" onclick="window.location.href='/admin/export_users'">Export Manifest</div>
 </div>
 
 <div class="roster-controls">
@@ -142,8 +119,8 @@
             <div class="cell-val">{{ stat.last_seen }}</div>
         </div>
         <div class="actions-group">
-            <a href="{{ url_for('coach_intelligence', user_id=stat.user.id) }}" class="btn-pro primary">View Intelligence</a>
-            <button class="btn-pro secondary" style="padding: 10px;" title="Send Signal" onclick="window.location.href='/coach/intelligence/{{ stat.user.id }}#chat'">
+            <a href="{{ url_for('coach_intelligence', user_id=stat.user.id) }}" class="btn-pro primary">View Intel</a>
+            <button class="btn-pro secondary" style="padding: 10px;" onclick="window.location.href='/coach/intelligence/{{ stat.user.id }}#chat'">
                 <i class="ph-bold ph-chat-centered-text"></i>
             </button>
         </div>
@@ -154,6 +131,7 @@
     </div>
     {% endfor %}
 </div>
+{% endblock %}
 
 {% block scripts %}
 <script>
@@ -177,10 +155,5 @@ function filterRoster() {
         }
     });
 }
-
-function exportRoster() {
-    window.location.href = '/admin/export_users'; // Reusing admin export for now, or we can make a coach specific one
-}
 </script>
-{% endblock %}
 {% endblock %}

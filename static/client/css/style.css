@@ -340,15 +340,23 @@ body {
     margin-bottom: 2.5rem;
 }
 
-.brand-logo .nyx { color: #0B0B0B; }
-.brand-logo .ft { color: #9CA3AF; font-weight: 800; }
+.brand-logo .nyx { color: #000; }
+.brand-logo .ft { 
+    background: #000; 
+    color: #FFF; 
+    padding: 2px 8px; 
+    border-radius: 4px; 
+    margin-left: 4px;
+    font-weight: 900;
+}
 
 .sidebar-label {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 800;
-    color: #9CA3AF;
+    letter-spacing: 2px;
+    font-weight: 900;
+    color: #000000;
+    opacity: 0.4;
     margin: 1.5rem 0.5rem 0.75rem;
 }
 
@@ -364,7 +372,7 @@ body {
     gap: 12px;
     padding: 10px 14px;
     text-decoration: none;
-    color: #4B5563;
+    color: #333333;
     font-weight: 600;
     border-radius: 10px;
     font-size: 0.85rem;
@@ -372,18 +380,19 @@ body {
 }
 
 .dash-nav a:hover {
-    background: #F9FAFB;
+    background: #F8FAFC;
     color: #0B0B0B;
 }
 
 .dash-nav a.active {
-    background: #F3F4F6;
-    color: #0B0B0B;
+    background: #000000;
+    color: #FFFFFF;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
 .nav-icon {
     font-size: 1.2rem;
-    color: #9CA3AF;
+    color: #666666;
 }
 
 .dash-nav a:hover .nav-icon, .dash-nav a.active .nav-icon {

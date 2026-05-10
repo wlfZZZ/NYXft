@@ -193,7 +193,7 @@
     }
 
     .btn-delete {
-        opacity: 0;
+        opacity: 0.3;
         cursor: pointer;
         color: #FF3B30;
         transition: 0.2s;
@@ -202,6 +202,7 @@
 
     .food-row:hover .btn-delete {
         opacity: 1;
+        transform: scale(1.1);
     }
 
     .food-meta { font-size: 0.8rem; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
@@ -739,14 +740,14 @@
             {% endfor %}
             
             <!-- HYDRATION INTELLIGENCE -->
-            <div class="macro-apple-card animate-in" style="animation-delay: 0.4s; border-left: 4px solid #007AFF;">
-                <span class="macro-tag" style="color: #007AFF;">Hydration</span>
+            <div class="macro-apple-card animate-in" style="animation-delay: 0.4s; border-left: 4px solid #000;">
+                <span class="macro-tag" style="color: #000;">Hydration</span>
                 <div class="macro-num">
                     <span id="water-val">0.0</span>
                     <span class="macro-target-dim" id="water-target">/ 4.0</span>
                 </div>
                 <div class="progress-track">
-                    <div id="water-progress" class="progress-fill" style="width: 0%; background: #007AFF;"></div>
+                    <div id="water-progress" class="progress-fill" style="width: 0%; background: #000;"></div>
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 1rem;">
                     <button class="filter-chip" onclick="addWater(0.25)" style="padding: 4px 10px; font-size: 0.65rem;">+250ml</button>
@@ -1258,7 +1259,7 @@
         const meal_type = document.getElementById('inputMealType').value;
 
         if (!name) {
-            alert('Please enter a food name');
+            showNotify('Please enter a food name', 'error');
             return;
         }
 
@@ -1313,7 +1314,7 @@
     }
 
     async function removeFood(id) {
-        showToast("Caution: Remove entry from protocol?", async () => {
+        showConfirmToast("Caution: Remove entry from protocol?", async () => {
             const res = await fetch('/api/nutrition/remove', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1336,7 +1337,7 @@
     }
 
     let toastTimeout;
-    function showToast(msg, onConfirm) {
+    function showConfirmToast(msg, onConfirm) {
         const toast = document.getElementById('toastNotification');
         const msgEl = document.getElementById('toastMsg');
         const confirmBtn = document.getElementById('toastConfirmBtn');
@@ -1392,8 +1393,8 @@
         if (data.success) {
             closeGoalModal();
             refreshData();
-            // Show transition info box (using existing toast system)
-            showToast(data.message, () => hideToast());
+            // Show transition info box (using existing notification system)
+            showNotify(data.message, "success");
         }
     }
 

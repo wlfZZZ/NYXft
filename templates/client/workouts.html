@@ -220,6 +220,7 @@
 
     <nav class="system-nav">
         <div class="nav-tab active" onclick="switchView('ppl')">PPL Architecture</div>
+        <div class="nav-tab" onclick="switchView('coach')">Coach Protocols</div>
         <div class="nav-tab" onclick="switchView('custom')">Custom Architect</div>
         <div class="nav-tab" onclick="switchView('smart')">Smart Intelligence</div>
     </nav>
@@ -263,6 +264,7 @@
 
 <script>
     const SYSTEM_DATA = {
+        assigned: {{ assigned|tojson if assigned else 'null' }},
         ppl: [
             { id: 'ppl_push', name: 'Alpha Push', meta: 'Force generation focused on Chest, Shoulders, and Triceps.', ex: [
                 { name: 'Incline Dumbbell Press', sets: 4, reps: '8-10' },
@@ -309,7 +311,35 @@
         const stage = document.getElementById('moduleStage');
         stage.innerHTML = '';
 
-        if (view === 'ppl') {
+        if (view === 'coach') {
+            stage.className = 'module-grid';
+            if (!SYSTEM_DATA.assigned) {
+                stage.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 5rem; background: var(--bg-subtle); border-radius: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 1.5rem;">📡</div>
+                        <div style="font-weight: 900; font-size: 1.2rem; color: var(--text-dim);">NO TACTICAL DEPLOYMENTS FOUND</div>
+                        <p style="color: var(--text-dim); margin-top: 10px;">Your coach hasn't assigned a specific protocol to your unit yet.</p>
+                    </div>
+                `;
+            } else {
+                stage.innerHTML = `
+                    <div class="system-card" style="border: 1px solid var(--accent-black);">
+                        <div class="card-label">TACTICAL DEPLOYMENT // ASSIGNED</div>
+                        <div class="card-title">Active Coach Protocol</div>
+                        <div class="card-meta">Your coach has synchronized a custom training architecture to your unit.</div>
+                        <div id="ex-assigned" class="exercise-list" style="display:block; border:none; margin-bottom: 2rem;">
+                            ${SYSTEM_DATA.assigned.map(e => `
+                                <div class="exercise-item">
+                                    <span>${e.name}</span>
+                                    <span class="ex-meta">${e.sets} x ${e.reps} @ ${e.target}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button onclick="startSession('assigned', 'coach')" class="btn-action" style="width:100%;">Initialize Assigned Protocol</button>
+                    </div>
+                `;
+            }
+        } else if (view === 'ppl') {
             stage.className = 'module-grid';
             SYSTEM_DATA.ppl.forEach(p => {
                 stage.innerHTML += `
@@ -349,10 +379,39 @@
                         <div class="card-label">SMART SUGGESTION // ${s.goal}</div>
                         <div class="card-title">${s.name}</div>
                         <div class="card-meta">Optimized for ${s.level} athletes seeking maximum ${s.goal}.</div>
-                        <button onclick="startSession('${s.id}', 'smart')" class="btn-action">Apply Plan</button>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <label style="font-size: 0.6rem; font-weight: 900; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px;">Select Volume Protocol</label>
+                            <div style="display: flex; gap: 10px;">
+                                <button id="sets3_${s.id}" class="btn-action" style="flex: 1; background: var(--bg-subtle); color: var(--accent-black); padding: 0.8rem;" onclick="setSmartVolume('${s.id}', 3)">3 SETS</button>
+                                <button id="sets4_${s.id}" class="btn-action" style="flex: 1; background: var(--accent-black); padding: 0.8rem;" onclick="setSmartVolume('${s.id}', 4)">4 SETS</button>
+                            </div>
+                        </div>
+
+                        <button onclick="startSession('${s.id}', 'smart')" class="btn-action" style="width: 100%;">Apply Plan</button>
                     </div>
                 `;
+                smartVolumeOverrides[s.id] = 4; // Initialize default
             });
+        }
+    }
+
+    let smartVolumeOverrides = {};
+    function setSmartVolume(id, sets) {
+        smartVolumeOverrides[id] = sets;
+        const b3 = document.getElementById(`sets3_${id}`);
+        const b4 = document.getElementById(`sets4_${id}`);
+        
+        if (sets === 3) {
+            b3.style.background = 'var(--accent-black)';
+            b3.style.color = 'white';
+            b4.style.background = 'var(--bg-subtle)';
+            b4.style.color = 'var(--accent-black)';
+        } else {
+            b4.style.background = 'var(--accent-black)';
+            b4.style.color = 'white';
+            b3.style.background = 'var(--bg-subtle)';
+            b3.style.color = 'var(--accent-black)';
         }
     }
 
@@ -376,8 +435,12 @@
 
     function startSession(id, type) {
         let p = null;
-        if (type === 'ppl') p = SYSTEM_DATA.ppl.find(x => x.id === id);
-        else if (type === 'smart') p = SYSTEM_DATA.smart.find(x => x.id === id);
+        if (type === 'smart') {
+            p = JSON.parse(JSON.stringify(SYSTEM_DATA.smart.find(x => x.id === id)));
+            const sets = smartVolumeOverrides[id] || 4; // Default 4
+            p.ex.forEach(e => e.sets = sets);
+        } else if (type === 'ppl') p = SYSTEM_DATA.ppl.find(x => x.id === id);
+        else if (type === 'coach') p = { name: 'Coach Protocol', ex: SYSTEM_DATA.assigned };
         
         if (!p) return;
 

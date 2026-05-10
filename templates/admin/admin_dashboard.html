@@ -13,7 +13,7 @@
         <div style="position: absolute; top: 0; right: 0; padding: 1rem; color: rgba(255,255,255,0.05); font-size: 4rem;"><i class="ph ph-users-three"></i></div>
         <div style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px;">Active Athletes</div>
         <div style="font-family: var(--font-header); font-size: 3rem; margin: 0.5rem 0; letter-spacing: -2px;">{{ total_users }}</div>
-        <div style="display: flex; align-items: center; gap: 8px; color: #10B981; font-weight: 900; font-size: 0.7rem;">
+        <div style="display: flex; align-items: center; gap: 8px; color: #000; font-weight: 900; font-size: 0.7rem;">
             <i class="ph ph-trend-up"></i> +12.4% SIGNAL STRENGTH
         </div>
     </div>
@@ -22,15 +22,15 @@
         <div style="position: absolute; top: 0; right: 0; padding: 1rem; color: rgba(255,255,255,0.05); font-size: 4rem;"><i class="ph ph-activity"></i></div>
         <div style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px;">Protocol Syncs</div>
         <div style="font-family: var(--font-header); font-size: 3rem; margin: 0.5rem 0; letter-spacing: -2px;">{{ total_logs }}</div>
-        <div style="display: flex; align-items: center; gap: 8px; color: #6366F1; font-weight: 900; font-size: 0.7rem;">
+        <div style="display: flex; align-items: center; gap: 8px; color: #000000; font-weight: 900; font-size: 0.7rem;">
             <i class="ph ph-arrows-clockwise"></i> REAL-TIME STREAM ACTIVE
         </div>
     </div>
 
-    <div class="glass-card" style="padding: 2rem; position: relative; overflow: hidden; border-color: rgba(255,184,0,0.1);">
-        <div style="position: absolute; top: 0; right: 0; padding: 1rem; color: rgba(255,184,0,0.05); font-size: 4rem;"><i class="ph ph-lightning"></i></div>
+    <div class="glass-card" style="padding: 2rem; position: relative; overflow: hidden; border-color: rgba(0,0,0,0.05);">
+        <div style="position: absolute; top: 0; right: 0; padding: 1rem; color: rgba(0,0,0,0.02); font-size: 4rem;"><i class="ph ph-lightning"></i></div>
         <div style="font-size: 0.65rem; font-weight: 900; color: var(--cmd-dim); text-transform: uppercase; letter-spacing: 2px;">Tactical Leads</div>
-        <div style="font-family: var(--font-header); font-size: 3rem; margin: 0.5rem 0; letter-spacing: -2px; color: #FFB800;">{{ total_coaches }}</div>
+        <div style="font-family: var(--font-header); font-size: 3rem; margin: 0.5rem 0; letter-spacing: -2px; color: #000000;">{{ total_coaches }}</div>
         <div style="display: flex; align-items: center; gap: 8px; color: var(--cmd-dim); font-weight: 900; font-size: 0.7rem;">
             <i class="ph ph-check-circle"></i> ACTIVE_COMMAND_UNITS
         </div>
@@ -66,8 +66,8 @@
                             <span style="padding: 4px 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--cmd-border); border-radius: 4px; font-size: 0.6rem; font-weight: 900; text-transform: uppercase;">{{ user.plan }}</span>
                         </td>
                         <td style="padding: 1.25rem 2.5rem;">
-                            <div style="display: flex; align-items: center; gap: 8px; color: #10B981; font-weight: 900; font-size: 0.7rem;">
-                                <div class="status-dot" style="width: 4px; height: 4px;"></div> ACTIVE
+                            <div style="display: flex; align-items: center; gap: 8px; color: #000; font-weight: 900; font-size: 0.7rem;">
+                                <div class="status-dot" style="width: 4px; height: 4px; background: #000;"></div> ACTIVE
                             </div>
                         </td>
                     </tr>
@@ -80,10 +80,10 @@
     <!-- STRATEGIC OVERWATCH -->
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
         <div class="glass-card" style="padding: 1.5rem;">
-            <h3 style="font-family: var(--font-header); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem; color: #FF4444;">Flagged Units</h3>
+            <h3 style="font-family: var(--font-header); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem; color: #000;">Flagged Units</h3>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 {% for f in flagged_athletes %}
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,68,68,0.03); border-radius: 12px; border: 1px solid rgba(255,68,68,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid var(--cmd-border);">
                     <div>
                         <div style="font-size: 0.75rem; font-weight: 700;">{{ f.user.name }}</div>
                         <div style="font-size: 0.6rem; color: var(--cmd-dim); font-weight: 900; letter-spacing: 1px;">{{ f.reason }}</div>
@@ -101,20 +101,20 @@
         <div class="glass-card" style="flex: 1; display: flex; flex-direction: column;">
             <h3 style="font-family: var(--font-header); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem;">Global Activity Stream</h3>
             <div style="flex: 1; font-family: monospace; font-size: 0.7rem; color: var(--cmd-dim); display: flex; flex-direction: column; gap: 12px;">
-                <div style="color: #FFF;"><span style="color: #666;">[22:04:01]</span> NYX_KERNAL_INIT_SUCCESS</div>
+                <div style="color: #000;"><span style="color: #666;">[22:04:01]</span> NYX_KERNAL_INIT_SUCCESS</div>
                 <div><span style="color: #666;">[22:04:12]</span> SYNCING_NUTRITION_PROTOCOLS...</div>
-                <div style="color: #6366F1;"><span style="color: #666;">[22:04:25]</span> DATA_CORE_STABLE_LOAD_0.12</div>
+                <div style="color: #000;"><span style="color: #666;">[22:04:25]</span> DATA_CORE_STABLE_LOAD_0.12</div>
                 <div><span style="color: #666;">[22:04:40]</span> UPLINK_ESTABLISHED_PORT_5002</div>
-                <div style="color: #10B981;"><span style="color: #666;">[22:05:01]</span> ATHLETE_0021_WEIGHT_LOG_OK</div>
+                <div style="color: #000;"><span style="color: #666;">[22:05:01]</span> ATHLETE_0021_WEIGHT_LOG_OK</div>
                 <div><span style="color: #666;">[22:05:15]</span> SYSTEM_SCAN_COMPLETE_NO_ERRORS</div>
-                <div style="color: #FFF; animation: pulse 1s infinite;"><span style="color: #666;">[22:05:30]</span> STANDBY_MODE_ACTIVE_</div>
+                <div style="color: #000; animation: pulse 1s infinite;"><span style="color: #666;">[22:05:30]</span> STANDBY_MODE_ACTIVE_</div>
             </div>
         </div>
 
-        <div class="glass-card" style="background: linear-gradient(135deg, #111 0%, #000 100%); border-color: rgba(99, 102, 241, 0.2);">
-            <h3 style="font-family: var(--font-header); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; color: #6366F1;">Elite Coordination</h3>
+        <div class="glass-card" style="background: #FFFFFF; border-color: rgba(0, 0, 0, 0.05);">
+            <h3 style="font-family: var(--font-header); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; color: #000;">Elite Coordination</h3>
             <p style="font-size: 0.75rem; color: var(--cmd-dim); line-height: 1.6; margin-bottom: 1.5rem;">Push global protocol adjustments to all connected units in the field.</p>
-            <button class="btn-action" style="width: 100%; background: #6366F1; color: #FFF; border: none;">Broadcast Update</button>
+            <button class="btn-action" style="width: 100%; background: #000; color: #FFF; border: none;">Broadcast Update</button>
         </div>
     </div>
 </div>

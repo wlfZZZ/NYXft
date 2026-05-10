@@ -1,0 +1,164 @@
+{% extends "coach/coach_base.html" %}
+{% set active_page = 'coach_intel' %}
+
+{% block extra_css %}
+<style>
+    .intel-hub-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+        padding-bottom: 4rem;
+    }
+    
+    .athlete-intel-card {
+        background: #FFF;
+        border: 1px solid var(--coach-border);
+        border-radius: 28px;
+        padding: 2.5rem;
+        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 280px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .athlete-intel-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--coach-primary);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.06);
+    }
+    
+    .card-bg-icon {
+        position: absolute;
+        right: -20px;
+        top: -20px;
+        font-size: 8rem;
+        color: rgba(0,0,0,0.02);
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    .intel-header {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .intel-name {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .intel-meta {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--coach-text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .intel-stats {
+        margin: 2rem 0;
+        display: flex;
+        gap: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .intel-stat-node {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-node-label {
+        font-size: 0.55rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--coach-text-dim);
+        margin-bottom: 4px;
+    }
+    
+    .stat-node-val {
+        font-weight: 900;
+        font-size: 1rem;
+    }
+    
+    .btn-intel-launch {
+        width: 100%;
+        background: var(--coach-text);
+        color: #FFF;
+        border: none;
+        padding: 1rem;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: 0.3s;
+    }
+    
+    .athlete-intel-card:hover .btn-intel-launch {
+        background: var(--coach-primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="roster-header" style="margin-bottom: 3rem;">
+    <div>
+        <div style="font-size: 0.65rem; font-weight: 900; letter-spacing: 4px; color: var(--coach-primary); margin-bottom: 0.5rem; text-transform: uppercase;">Performance Oversight</div>
+        <h1 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -1.5px;">Intelligence Hub</h1>
+    </div>
+    <div class="header-stat">
+        <span class="label">Units Monitored:</span>
+        <span class="val">{{ roster_count }}</span>
+    </div>
+</div>
+
+<div class="intel-hub-grid">
+    {% for athlete in roster %}
+    <div class="athlete-intel-card" onclick="window.location.href='/coach/intelligence/{{ athlete.id }}'">
+        <i class="ph ph-brain card-bg-icon"></i>
+        
+        <div class="intel-header">
+            <div class="intel-name">{{ athlete.name }}</div>
+            <div class="intel-meta">{{ athlete.goal if athlete.goal else 'PROTOCOL UNASSIGNED' }}</div>
+        </div>
+        
+        <div class="intel-stats">
+            <div class="intel-stat-node">
+                <span class="stat-node-label">Load</span>
+                <span class="stat-node-val">{{ athlete.weight }}kg</span>
+            </div>
+            <div class="intel-stat-node">
+                <span class="stat-node-label">Uplink</span>
+                <span class="stat-node-val" style="color: var(--coach-primary);">Active</span>
+            </div>
+            <div class="intel-stat-node">
+                <span class="stat-node-label">Protocol</span>
+                <span class="stat-node-val">{{ athlete.plan }}</span>
+            </div>
+        </div>
+        
+        <button class="btn-intel-launch">
+            ACCESS DEEP INTEL
+            <i class="ph-bold ph-arrow-right"></i>
+        </button>
+    </div>
+    {% else %}
+    <div style="grid-column: 1/-1; text-align: center; padding: 5rem; border: 1px dashed var(--coach-border); border-radius: 40px;">
+        <i class="ph-bold ph-warning-circle" style="font-size: 3rem; color: var(--coach-text-dim); margin-bottom: 1rem; display: block;"></i>
+        <h2 style="font-weight: 800; color: var(--coach-text-dim);">No active units found.</h2>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

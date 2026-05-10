@@ -12,6 +12,10 @@
 </head>
 <body>
     <div class="tactical-grid"></div>
+    
+    <!-- Tactical Notification System -->
+    <div id="toastContainer" style="position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+
     <div class="coach-layout">
         <aside class="coach-sidebar">
             <div class="coach-brand">
@@ -20,23 +24,23 @@
             
             <nav class="coach-nav">
                 <a href="{{ url_for('coach_dashboard') }}" class="nav-item {% if active_page == 'coach_dash' %}active{% endif %}">
-                    <i class="ph-bold ph-chart-line-up"></i> Dashboard
+                    <i class="ph-bold ph-chart-line-up"></i> DASHBOARD
                 </a>
-                <a href="#" class="nav-item {% if active_page == 'coach_roster' %}active{% endif %}">
-                    <i class="ph-bold ph-users"></i> My Roster
+                <a href="{{ url_for('coach_roster') }}" class="nav-item {% if active_page == 'coach_roster' %}active{% endif %}">
+                    <i class="ph-bold ph-users"></i> MY ROSTER
                 </a>
-                <a href="#" class="nav-item {% if active_page == 'coach_programming' %}active{% endif %}">
-                    <i class="ph-bold ph-notebook"></i> Programming
+                <a href="{{ url_for('coach_programming') }}" class="nav-item {% if active_page == 'coach_programming' %}active{% endif %}">
+                    <i class="ph-bold ph-notebook"></i> PROGRAMMING
                 </a>
-                <a href="#" class="nav-item {% if active_page == 'coach_intel' %}active{% endif %}">
-                    <i class="ph-bold ph-brain"></i> Intelligence
+                <a href="{{ url_for('coach_intelligence_hub') }}" class="nav-item {% if active_page == 'coach_intel' %}active{% endif %}">
+                    <i class="ph-bold ph-brain"></i> INTELLIGENCE
                 </a>
             </nav>
 
             <div class="coach-footer">
                 <div style="display:flex; align-items:center; gap:12px; margin-bottom: 1.5rem;">
                     <div style="width:36px; height:36px; background:#F3F4F6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem;">
-                        {{ session['user'][0]|upper }}
+                        {{ (session.get('coach_user') or session.get('admin_user') or 'N')[0]|upper }}
                     </div>
                     <div>
                         <div style="font-size:0.75rem; font-weight:700;">Tactical Lead</div>
@@ -58,10 +62,7 @@
                         <span class="label">Total Athletes:</span>
                         <span class="val">{{ roster_count|default(0) }}</span>
                     </div>
-                    <div class="header-stat">
-                        <span class="label">Pending Alerts:</span>
-                        <span class="val" style="color: var(--warning);">2</span>
-                    </div>
+                    
                     <div style="width:32px; height:32px; background:#111; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#FFF; font-size:0.8rem; cursor:pointer;">
                         <i class="ph ph-user"></i>
                     </div>
@@ -73,6 +74,41 @@
             </div>
         </main>
     </div>
+    <script>
+        function showNotify(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                background: #000;
+                color: #FFF;
+                padding: 12px 24px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                font-weight: 800;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                border-left: 4px solid ${type === 'success' ? 'var(--success)' : 'var(--danger)'};
+                animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                pointer-events: auto;
+            `;
+            toast.innerHTML = `<i class="ph-bold ph-${type === 'success' ? 'check-circle' : 'warning-circle'}"></i> ${msg}`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.4s forwards';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Animation Styles
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+        `;
+        document.head.appendChild(style);
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

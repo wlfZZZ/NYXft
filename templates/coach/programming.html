@@ -1,0 +1,237 @@
+{% extends "coach/coach_base.html" %}
+{% set active_page = 'coach_programming' %}
+
+{% block extra_css %}
+<style>
+    .programming-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        height: calc(100vh - 180px);
+    }
+    
+    .architect-panel {
+        background: #FFF;
+        border-radius: 24px;
+        border: 1px solid var(--coach-border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .panel-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--coach-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0,0,0,0.01);
+    }
+    
+    .exercise-stack {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2rem;
+    }
+    
+    .exercise-item {
+        background: #F9FAFB;
+        border: 1px solid var(--coach-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 40px;
+        gap: 1rem;
+        align-items: center;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .blueprint-card {
+        background: #FFF;
+        border: 1px solid var(--coach-border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+    .blueprint-card:hover {
+        border-color: var(--coach-primary);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+    
+    .input-field {
+        background: #FFF;
+        border: 1px solid var(--coach-border);
+        padding: 0.75rem;
+        border-radius: 10px;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.85rem;
+        width: 100%;
+    }
+    
+    .tag-protocol {
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--coach-primary);
+        letter-spacing: 1px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="programming-grid">
+    <!-- LEFT: THE ARCHITECT -->
+    <div class="architect-panel">
+        <div class="panel-header">
+            <div>
+                <span class="tag-protocol">PROTOCOL CONSTRUCTION LAB</span>
+                <h2 style="margin-top: 5px; text-transform: uppercase; font-size: 1.5rem;">Architect New Blueprint</h2>
+            </div>
+            <div style="display:flex; gap: 10px;">
+                <input type="text" id="blueprintName" class="input-field" placeholder="Blueprint Name (e.g. Push Hypertrophy)" style="width: 250px;">
+                <button class="btn-pro primary" onclick="saveBlueprint()">Save to Library</button>
+            </div>
+        </div>
+        
+        <div class="exercise-stack" id="exerciseStack">
+            <!-- Dynamic Exercises Here -->
+        </div>
+        
+        <div style="padding: 1.5rem 2rem; border-top: 1px solid var(--coach-border); background: rgba(0,0,0,0.01);">
+            <button class="btn-pro secondary" style="width: 100%; border-style: dashed;" onclick="addExercise()">
+                <i class="ph-bold ph-plus"></i> Add Exercise Node
+            </button>
+        </div>
+    </div>
+    
+    <!-- RIGHT: THE LIBRARY -->
+    <div style="overflow-y: auto;">
+        <h3 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.5rem; color: var(--coach-text-dim);">GLOBAL BLUEPRINTS</h3>
+        
+        {% for bp in blueprints %}
+        <div class="blueprint-card" onclick="openDeploymentModal('{{ bp.id }}', '{{ bp.name }}')">
+            <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 4px;">{{ bp.name }}</div>
+            <div style="font-size: 0.7rem; color: var(--coach-text-dim); font-weight: 600;">
+                <i class="ph-bold ph-barbell"></i> {{ bp.exercises_data|length }} Exercises • {{ bp.created_at.strftime('%b %d') }}
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align:center; padding: 2rem; color: var(--coach-text-dim); border: 1px dashed var(--coach-border); border-radius: 16px;">
+            <i class="ph-bold ph-notebook" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+            <span style="font-size: 0.75rem; font-weight: 700;">No blueprints archived.</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- DEPLOYMENT MODAL -->
+<div id="deployModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(10px); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#FFF; width: 450px; border-radius:32px; padding:2.5rem; box-shadow: 0 50px 100px rgba(0,0,0,0.2);">
+        <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">DEPLOY PROTOCOL</h2>
+        <p style="font-size:0.85rem; color:var(--coach-text-dim); margin-bottom: 2rem;">Select an athlete unit to synchronize this blueprint.</p>
+        
+        <input type="hidden" id="selectedProtocolId">
+        
+        <div style="max-height: 300px; overflow-y: auto; margin-bottom: 2rem;">
+            {% for athlete in roster %}
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px; border-bottom: 1px solid var(--coach-border);">
+                <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">{{ athlete.name }}</div>
+                    <div style="font-size: 0.7rem; color: var(--coach-text-dim);">{{ athlete.email }}</div>
+                </div>
+                <button class="btn-pro primary" style="padding: 8px 16px; font-size: 0.7rem;" onclick="assignToAthlete('{{ athlete.id }}')">Deploy</button>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <button class="btn-pro secondary" style="width: 100%;" onclick="closeModal()">Cancel Deployment</button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let exerciseCount = 0;
+
+    function addExercise() {
+        const stack = document.getElementById('exerciseStack');
+        const id = `ex_${Date.now()}`;
+        const html = `
+            <div class="exercise-item" id="${id}">
+                <input type="text" class="input-field ex-name" placeholder="Exercise Name">
+                <input type="number" class="input-field ex-sets" placeholder="Sets">
+                <input type="text" class="input-field ex-reps" placeholder="Reps">
+                <input type="text" class="input-field ex-target" placeholder="Target (e.g. RPE 8)">
+                <button onclick="document.getElementById('${id}').remove()" style="background:none; border:none; color:var(--danger); cursor:pointer;">
+                    <i class="ph-bold ph-trash"></i>
+                </button>
+            </div>
+        `;
+        stack.insertAdjacentHTML('beforeend', html);
+    }
+
+    async function saveBlueprint() {
+        const name = document.getElementById('blueprintName').value;
+        if(!name) return showNotify('Enter a blueprint name.', 'error');
+        
+        const items = document.querySelectorAll('.exercise-item');
+        const exercises = [];
+        items.forEach(item => {
+            exercises.push({
+                name: item.querySelector('.ex-name').value,
+                sets: item.querySelector('.ex-sets').value,
+                reps: item.querySelector('.ex-reps').value,
+                target: item.querySelector('.ex-target').value
+            });
+        });
+
+        const res = await fetch('/api/programming/save', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name, exercises })
+        });
+        
+        if(res.ok) {
+            showNotify('Blueprint Archived Successfully.');
+            setTimeout(() => window.location.reload(), 1000);
+        }
+    }
+
+    function openDeploymentModal(id, name) {
+        document.getElementById('selectedProtocolId').value = id;
+        document.getElementById('modalTitle').innerText = `Deploy: ${name}`;
+        document.getElementById('deployModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('deployModal').style.display = 'none';
+    }
+
+    async function assignToAthlete(athleteId) {
+        const protocolId = document.getElementById('selectedProtocolId').value;
+        const res = await fetch('/api/programming/assign', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ athlete_id: athleteId, protocol_id: protocolId })
+        });
+        
+        if(res.ok) {
+            showNotify('Protocol Synchronized Successfully.');
+            closeModal();
+        }
+    }
+
+    // Initial Exercise
+    addExercise();
+</script>
+{% endblock %}

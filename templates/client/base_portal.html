@@ -50,27 +50,27 @@
             <div class="dash-nav">
                 <a href="{{ url_for('dashboard') }}" class="{{ 'active' if active_page == 'dashboard' }}">
                     <i class="ph ph-squares-four nav-icon"></i>
-                    <span>Dashboard</span>
+                    <span>DASHBOARD</span>
                 </a>
                 <a href="{{ url_for('workouts') }}" class="{{ 'active' if active_page == 'workouts' }}">
                     <i class="ph ph-barbell nav-icon"></i>
-                    <span>Workouts</span>
+                    <span>WORKOUTS</span>
                 </a>
                 <a href="{{ url_for('nutrition') }}" class="{{ 'active' if active_page == 'nutrition' }}">
                     <i class="ph ph-fork-knife nav-icon"></i>
-                    <span>Diet & Nutrition</span>
+                    <span>DIET & NUTRITION</span>
                 </a>
                 <a href="{{ url_for('coaches') }}" class="{{ 'active' if active_page == 'coaches' }}">
                     <i class="ph ph-users nav-icon"></i>
-                    <span>Coaches</span>
+                    <span>COACHES</span>
                 </a>
                 <a href="{{ url_for('analytics') }}" class="{{ 'active' if active_page == 'analytics' }}">
                     <i class="ph ph-chart-line-up nav-icon"></i>
-                    <span>Analytics</span>
+                    <span>ANALYTICS</span>
                 </a>
                 <a href="{{ url_for('pr_tracker') }}" class="{{ 'active' if active_page == 'pr_tracker' }}">
                     <i class="ph ph-barbell nav-icon"></i>
-                    <span>PR Tracker</span>
+                    <span>PR TRACKER</span>
                 </a>
 
             </div>
@@ -85,10 +85,47 @@
 
         <!-- ════ MAIN CONTENT ════ -->
         <div class="dash-main">
+            <!-- Tactical Notification System -->
+            <div id="toastContainer" style="position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+
             {% block content %}{% endblock %}
         </div>
     </div>
 
+    <script>
+        function showNotify(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                background: #000;
+                color: #FFF;
+                padding: 12px 24px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                font-weight: 800;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                border-left: 4px solid ${type === 'success' ? '#32D74B' : '#FF3B30'};
+                animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                pointer-events: auto;
+            `;
+            toast.innerHTML = `<i class="ph-bold ph-${type === 'success' ? 'check-circle' : 'warning-circle'}"></i> ${msg}`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.4s forwards';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+        `;
+        document.head.appendChild(style);
+    </script>
     <!-- Core Scripts -->
     <script src="{{ url_for('static', filename='client/js/app.js') }}"></script>
     {% block scripts %}{% endblock %}

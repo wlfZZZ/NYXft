@@ -1,42 +1,74 @@
-# NYX Fitness: Performance OS
+# NYX PERFORMANCE OS 
+### WHERE CODE MEETS PERFORMANCE
 
-A high-fidelity, science-based fitness and nutrition management platform. NYX Performance OS provides elite-level tracking for athletes who prioritize biological optimization and data-driven performance.
-
-## 🚀 Key Features
-- **Fuel Intelligence**: Searchable dataset of 2,100+ foods and supplements for precise nutritional oversight.
-- **Biometric Analytics**: Predictive ETA for physical goals and real-time consistency pulse monitoring.
-- **Powerbuilding Architecture**: Dedicated PR tracking for core lifts (Bench, Squat, Deadlift) with delta improvement analytics.
-- **Command Center**: Comprehensive administrative portal for athlete management and system oversight.
-
-## 🛠 Tech Stack
-- **Backend**: Flask (Python)
-- **Database**: SQLite with SQLAlchemy ORM
-- **Frontend**: Vanilla CSS, Semantic HTML5, and Tactical JavaScript
-- **Data**: Pandas for high-speed nutritional dataset processing
-
-## 📦 Installation & Setup
-1. **Initialize Environment**:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. **Launch the OS**:
-   ```bash
-   python app.py
-   ```
-   *Note: The platform runs on port 5002 by default.*
-
-## 📂 Project Structure
-- `app.py`: Main application logic and routing.
-- `docs/`: Nutritional datasets and system documentation.
-- `static/`: Tactical UI assets and styling.
-- `templates/`: Modular Jinja2 architectures (Admin & Client).
-- `requirements.txt`: System dependencies.
+NYX Performance OS is a high-fidelity, tactical fitness and nutrition management ecosystem designed for athletes who prioritize biological optimization and data-driven execution. Built with a strict **Tactical Monochrome** design language, it provides an elite-level command interface for tracking every variable of human performance.
 
 ---
-**Status**: Ready for Deployment
-**Build**: v1.0.0-Tactical
+
+## ⚡ CORE MODULES
+
+### 🧬 [MOD-ALPHA] PR ARCHIVE
+- Surgical tracking of strength progression across core protocols (Squat, Bench, Deadlift).
+- Real-time delta improvement analytics and historical depth mapping.
+- Visual volume consistency monitoring.
+
+### 🍱 [MOD-BETA] FUEL LOGIC (NUTRITION OS)
+- **Deep Dataset Integration**: Instant access to 2,100+ validated food and supplement nodes.
+- **Smart Macros**: Algorithmic tracking of calories, protein, carbs, and fats.
+- **Hydration Uplink**: Real-time water intake tracking with volume-based goals.
+
+### 🧠 [MOD-GAMMA] INTELLIGENCE HUB
+- **Tactical Roster**: Coach-level oversight of multiple athletes in the field.
+- **Integrated Uplink**: Real-time secure communication between coaches and athletes.
+- **Performance Diagnostics**: Automated trend analysis and biological consistency scoring.
+
+### 🏗️ [MOD-DELTA] COMMAND CENTER
+- Multi-portal architecture (Admin, Coach, and Athlete).
+- System-wide broadcast capabilities for protocol adjustments.
+- High-fidelity visual dashboards with zero latency data syncing.
+
+---
+
+## 🛠 TECH STACK & ARCHITECTURE
+
+- **Backend Architecture**: Flask (Python 3.9+)
+- **Data Engine**: Pandas / NumPy (Optimized for 2K+ entry dataset processing)
+- **Persistent Storage**: SQLite with SQLAlchemy ORM
+- **Interface Layer**: Vanilla CSS3 (Tactical Monochrome System), HTML5 Semantic Structure, Inter & Space Grotesk Typography
+- **Session Layer**: 31-day Persistent Command Sessions
+
+---
+
+## 🚀 DEPLOYMENT PROTOCOL
+
+### 1. Initialize Tactical Environment
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 2. Synchronize Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Activate Performance OS
+```bash
+python app.py
+```
+*Platform default uplink: http://127.0.0.1:5002*
+
+---
+
+## 📂 DIRECTORY STRUCTURE
+
+- `/templates/`: Modular Jinja2 tactical architectures.
+- `/static/`: Core CSS design tokens and performance scripts.
+- `/docs/`: Raw nutritional datasets and system blueprints.
+- `app.py`: Central Command (Routing & Logic).
+- `nyx.db`: Secure data repository.
+
+---
+**Status**: DEPLOYMENT_READY  
+**Build**: v1.1.0-STABLE (Tactical Monochrome)  
+**Authority**: Level 4 Access Required  

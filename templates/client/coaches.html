@@ -451,24 +451,26 @@
         const userId = {{ user.id }};
 
         async function loadHistory() {
-            const res = await fetch(`/api/chat/history/${userId}`);
-            const data = await res.json();
-            
-            chatStream.innerHTML = '';
-            if (data.length === 0) {
-                chatStream.innerHTML = '<div style="text-align: center; color: var(--text-dim); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; margin-top: 4rem;">[ TERMINAL INITIALIZED ]<br>START UPLINK WITH COMMAND.</div>';
-            } else {
-                data.forEach(m => {
-                    const packet = document.createElement('div');
-                    packet.className = `packet ${m.sender === 'athlete' ? 'athlete' : 'coach'}`;
-                    packet.innerHTML = `
+            try {
+                const res = await fetch(`/api/chat/history/${userId}?t=${Date.now()}`);
+                const data = await res.json();
+                
+                const newContent = data.map(m => `
+                    <div class="packet ${m.sender === 'athlete' ? 'athlete' : 'coach'}">
                         <div>${m.content}</div>
                         <div class="packet-meta">${m.timestamp} // ${m.sender === 'athlete' ? 'ATHLETE' : 'COMMAND UPLINK'}</div>
-                    `;
-                    chatStream.appendChild(packet);
-                });
-            }
-            chatStream.scrollTop = chatStream.scrollHeight;
+                    </div>
+                `).join('');
+
+                if (chatStream.dataset.lastContent === newContent) return;
+                
+                chatStream.innerHTML = data.length === 0 ? 
+                    '<div style="text-align: center; color: var(--text-dim); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; margin-top: 4rem;">[ TERMINAL INITIALIZED ]<br>START UPLINK WITH COMMAND.</div>' 
+                    : newContent;
+                
+                chatStream.dataset.lastContent = newContent;
+                chatStream.scrollTop = chatStream.scrollHeight;
+            } catch (err) { console.error("Signal severed:", err); }
         }
 
         const sendSignal = async () => {
@@ -493,6 +495,7 @@
 
         setInterval(loadHistory, 3000);
         loadHistory();
+
 
         sendBtn.addEventListener('click', sendSignal);
         msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendSignal(); });

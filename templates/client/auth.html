@@ -8,168 +8,359 @@
 <style>
     :root {
         --bg-canvas: #FFFFFF;
-        --accent-blue: #007AFF;
+        --accent-green: #A3FF12;
         --accent-black: #000000;
         --text-dim: #8E8E93;
-        --border-color: rgba(0,0,0,0.08);
-        --glass-bg: rgba(255, 255, 255, 0.7);
-        --grid-line: rgba(0,0,0,0.02);
+        --border-color: rgba(0,0,0,0.1);
+        --input-bg: #FFFFFF;
     }
 
     body {
         background-color: var(--bg-canvas);
-        height: 100vh;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* ════ BACKGROUND ARCHITECTURE ════ */
-    .auth-environment {
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        background-image: 
-            linear-gradient(var(--grid-line) 1px, transparent 1px),
-            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-        background-size: 100px 100px;
-        background-position: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .bg-monolith {
-        position: absolute;
-        font-family: 'Archivo Black', sans-serif;
-        font-size: 20vw;
-        letter-spacing: -1vw;
-        color: rgba(0,0,0,0.02);
-        user-select: none;
-        pointer-events: none;
-        text-transform: uppercase;
-        line-height: 1;
-        white-space: nowrap;
-    }
-
-    /* ════ AUTHORIZATION CARD ════ */
-    .auth-gate {
-        width: 100%;
-        max-width: 440px;
-        background: var(--glass-bg);
-        backdrop-filter: blur(40px) saturate(180%);
-        -webkit-backdrop-filter: blur(40px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        border-radius: 48px;
-        padding: 4rem 3.5rem;
-        box-shadow: 0 40px 100px rgba(0,0,0,0.08);
-        animation: gateEntry 1s cubic-bezier(0.16, 1, 0.3, 1);
-        z-index: 10;
-    }
-
-    @keyframes gateEntry {
-        from { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(20px); }
-        to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-    }
-
-    .auth-header {
-        margin-bottom: 3.5rem;
-        text-align: center;
-    }
-
-    .brand-tag {
-        font-size: 0.6rem;
-        font-weight: 900;
-        letter-spacing: 5px;
-        color: var(--accent-blue);
-        text-transform: uppercase;
-        margin-bottom: 1rem;
-    }
-
-    .gate-title {
-        font-family: 'Archivo Black', sans-serif;
-        font-size: 2.2rem;
-        letter-spacing: -2px;
+        min-height: 100vh;
         margin: 0;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ════ LAYOUT ARCHITECTURE ════ */
+    .auth-page-wrapper {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        min-height: calc(100vh - 60px);
+        width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .auth-branding-panel {
+        padding: 4rem 6rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-form-panel {
+        padding: 4rem 6rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-left: 1px solid var(--border-color);
+        background: #FFFFFF;
+    }
+
+    /* ════ BRANDING ELEMENTS ════ */
+    .protocol-tag {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.65rem;
+        font-weight: 900;
+        letter-spacing: 4px;
+        color: var(--accent-black);
         text-transform: uppercase;
+        margin-bottom: 2rem;
+    }
+
+    .protocol-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-green);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-green);
+    }
+
+    .hero-title {
+        font-family: 'Archivo Black', sans-serif;
+        font-size: 5rem;
+        line-height: 0.95;
+        letter-spacing: -4px;
+        margin: 0 0 1.5rem 0;
+        color: var(--accent-black);
+    }
+
+    .hero-title .dot { color: var(--accent-green); }
+
+    .hero-subtext {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: var(--text-dim);
+        max-width: 400px;
+        margin: 0;
+    }
+
+    .watermark-text {
+        position: absolute;
+        bottom: 5rem;
+        left: 4rem;
+        font-family: 'Archivo Black', sans-serif;
+        font-size: 12vw;
+        line-height: 0.8;
+        letter-spacing: -0.5vw;
+        color: rgba(0,0,0,0.02);
+        pointer-events: none;
+        user-select: none;
+        z-index: -1;
+    }
+
+    .system-secure-badge {
+        position: absolute;
+        bottom: 6rem;
+        left: 6rem;
+        background: #FFFFFF;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .secure-icon {
+        font-size: 1.5rem;
+        color: var(--accent-black);
+    }
+
+    .secure-info .label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.55rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin-bottom: 4px;
+    }
+
+    .secure-info .desc {
+        font-size: 0.7rem;
+        color: var(--text-dim);
     }
 
     /* ════ FORM ELEMENTS ════ */
-    .input-wrapper { margin-bottom: 2rem; position: relative; }
-    .input-wrapper label {
-        display: block;
-        font-size: 0.55rem;
-        font-weight: 900;
+    .form-header-link {
+        position: absolute;
+        top: 2rem;
+        right: 4rem;
+        font-size: 0.85rem;
+        font-weight: 600;
         color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 12px;
     }
+
+    .form-header-link a {
+        color: var(--accent-black);
+        text-decoration: none;
+        font-weight: 700;
+        border-bottom: 2px solid var(--accent-black);
+        padding: 5px 0;
+        margin-left: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        z-index: 2000;
+        position: relative;
+    }
+    .form-header-link a:hover {
+        color: var(--accent-green);
+        border-color: var(--accent-green);
+    }
+
+    .auth-form {
+        max-width: 440px;
+        width: 100%;
+    }
+
+    .field-group {
+        margin-bottom: 2rem;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        color: var(--accent-black);
+    }
+
+    .input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-container i {
+        position: absolute;
+        left: 1.2rem;
+        color: var(--text-dim);
+        font-size: 1.1rem;
+    }
+
+    .input-container .toggle-pw {
+        position: absolute;
+        right: 1.2rem;
+        left: auto;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .input-container .toggle-pw:hover { color: var(--accent-black); }
 
     .auth-input {
         width: 100%;
-        background: transparent;
-        border: none;
-        border-bottom: 2px solid var(--border-color);
-        font-size: 1.1rem;
-        font-weight: 700;
+        padding: 1.2rem 1.2rem 1.2rem 3.5rem;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        font-size: 0.95rem;
+        font-weight: 600;
         outline: none;
-        padding: 10px 0;
-        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: 0.3s;
     }
 
     .auth-input:focus {
         border-color: var(--accent-black);
-        padding-left: 10px;
+        box-shadow: 0 0 0 4px rgba(0,0,0,0.02);
     }
 
-    .btn-authorize {
+    .form-extras {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .remember-me input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent-black);
+    }
+
+    .forgot-link {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--accent-black);
+        text-decoration: none;
+        border-bottom: 1px solid var(--accent-black);
+    }
+
+    .btn-submit {
         width: 100%;
         background: var(--accent-black);
         color: white;
         border: none;
         padding: 1.3rem;
-        border-radius: 18px;
+        border-radius: 14px;
         font-weight: 900;
         font-size: 0.8rem;
-        letter-spacing: 3px;
+        letter-spacing: 4px;
         text-transform: uppercase;
         cursor: pointer;
-        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+
+    /* ════ SOCIAL LOGIN ════ */
+    .social-divider {
+        margin: 2.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        color: var(--text-dim);
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .social-divider::before, .social-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+    }
+
+    .social-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 4rem;
+    }
+
+    .btn-social {
+        background: white;
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 12px;
-        margin-top: 2rem;
-    }
-
-    .btn-authorize:hover {
-        background: var(--accent-blue);
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0,122,255,0.2);
-    }
-
-    .auth-switch {
-        margin-top: 2.5rem;
-        text-align: center;
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         font-weight: 700;
-        color: var(--text-dim);
-    }
-
-    .auth-switch a {
-        color: var(--accent-black);
-        text-decoration: none;
-        border-bottom: 1.5px solid var(--accent-black);
-        padding-bottom: 2px;
+        cursor: pointer;
         transition: 0.3s;
     }
 
-    .auth-switch a:hover { color: var(--accent-blue); border-color: var(--accent-blue); }
+    .btn-social:hover {
+        border-color: var(--accent-black);
+        background: #F9F9F9;
+    }
 
+    .btn-social img { width: 18px; }
+
+    /* ════ FOOTER ICONS ════ */
+    .feature-footer {
+        display: flex;
+        gap: 3rem;
+        margin-top: auto;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .feature-item i {
+        font-size: 1.4rem;
+        color: var(--accent-black);
+    }
+
+    .feature-text {
+        font-size: 0.7rem;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--accent-black);
+        max-width: 80px;
+    }
+
+    /* ════ UTILS ════ */
     .alert-frame {
-        position: absolute;
+        position: fixed;
         top: 2rem;
         left: 50%;
         transform: translateX(-50%);
@@ -177,7 +368,7 @@
         background: var(--accent-black);
         color: white;
         border-radius: 12px;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         font-weight: 900;
         letter-spacing: 1px;
         opacity: 0;
@@ -187,61 +378,195 @@
     }
     .alert-frame.visible { opacity: 1; transform: translateX(-50%) translateY(10px); }
 
+    /* ════ ANIMATIONS ════ */
+    @keyframes authFadeInUp {
+        from { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+        to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    @keyframes authFadeInRight {
+        from { opacity: 0; transform: translateX(-15px); filter: blur(4px); }
+        to { opacity: 1; transform: translateX(0); filter: blur(0); }
+    }
+
+    .hero-title {
+        opacity: 0;
+        animation: authFadeInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .hero-subtext {
+        opacity: 0;
+        animation: authFadeInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: 0.1s;
+    }
+
+    .system-secure-badge {
+        opacity: 0;
+        animation: authFadeInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: 0.2s;
+    }
+
+    .auth-form-container {
+        opacity: 0;
+        animation: authFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .feature-footer {
+        opacity: 0;
+        animation: authFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: 0.15s;
+    }
+
+    @media (max-width: 1100px) {
+        .auth-page-wrapper { grid-template-columns: 1fr; }
+        .auth-branding-panel { display: none; }
+        .auth-form-panel { padding: 4rem 2rem; border-left: none; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="auth-environment">
-    <div class="bg-monolith">{{ 'ACCESS' if mode == 'login' else 'ARCHIVE' }}</div>
-</div>
-
 <div id="alertBox" class="alert-frame"></div>
 
-<div class="auth-gate">
-    <header class="auth-header">
-        <div class="brand-tag">PROTOCOL AUTHORIZATION</div>
-        <h1 class="gate-title">{{ 'System Login' if mode == 'login' else 'System Signup' }}</h1>
-    </header>
-
-    <form id="authForm" data-mode="{{ mode }}">
-        {% if mode == 'signup' %}
-        <div class="input-wrapper">
-            <label>Administrator Identity</label>
-            <input type="text" id="name" class="auth-input" placeholder="Full Name" required>
-        </div>
-        {% endif %}
-
-        <div class="input-wrapper">
-            <label>Communication Uplink (Email)</label>
-            <input type="email" id="email" class="auth-input" placeholder="athlete@nyxft.com" required>
+<div class="auth-page-wrapper">
+    <!-- ════ LEFT SIDE: BRANDING ════ -->
+    <div class="auth-branding-panel">
+        <div class="protocol-tag">
+            <div class="protocol-dot"></div>
+            Protocol Authorization
         </div>
 
-        <div class="input-wrapper">
-            <label>Security Passcode</label>
-            <input type="password" id="password" class="auth-input" placeholder="••••••••" required>
+        <h1 class="hero-title">
             {% if mode == 'login' %}
-            <div style="margin-top: 10px; text-align: right;">
-                <a href="{{ url_for('forgot_password') }}" style="font-size: 0.6rem; font-weight: 800; color: var(--text-dim); text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">Forgot Passcode?</a>
+                Welcome<br>back, {{ role if role != 'athlete' else 'athlete' }}<span class="dot">.</span>
+            {% else %}
+                Create your<br>{{ role if role != 'athlete' else 'athlete' }} account<span class="dot">.</span>
+            {% endif %}
+        </h1>
+
+        <p class="hero-subtext">
+            {% if mode == 'login' %}
+                Access your performance system and continue your journey.
+            {% else %}
+                Precision engineered fitness ecosystem. Unlock your potential.
+            {% endif %}
+        </p>
+
+        <div class="watermark-text">
+            PERFORMANCE<br>STRENGTH<br>DISCIPLINE<br>SYSTEM
+        </div>
+
+        <div class="system-secure-badge">
+            <i class="ph-bold ph-shield-check secure-icon"></i>
+            <div class="secure-info">
+                <div class="label"><div class="protocol-dot"></div> SYSTEM SECURE</div>
+                <div class="desc">256-bit encrypted athlete data</div>
             </div>
+        </div>
+    </div>
+
+    <!-- ════ RIGHT SIDE: FORM ════ -->
+    <div class="auth-form-panel">
+        <div class="form-header-link" style="z-index: 1001;">
+            {% if mode == 'login' %}
+                Don't have an account? <a href="/auth?mode=signup&role={{ role }}">Create account <i class="ph-bold ph-arrow-right"></i></a>
+            {% else %}
+                Already have an account? <a href="/auth?mode=login&role={{ role }}">Log in to Portal <i class="ph-bold ph-arrow-right"></i></a>
             {% endif %}
         </div>
 
-        <button type="submit" class="btn-authorize">
-            {{ 'Authorize Access' if mode == 'login' else 'Initialize Protocol' }}
-            <i class="ph-bold ph-arrow-right"></i>
-        </button>
-    </form>
+        <div class="auth-form-container">
+            <form id="authForm" class="auth-form" data-mode="{{ mode }}">
+                
+                {% if mode == 'signup' %}
+                <div class="field-group">
+                    <label class="field-label">Full Name</label>
+                    <div class="input-container">
+                        <i class="ph-bold ph-user"></i>
+                        <input type="text" id="name" class="auth-input" placeholder="Enter your full name" required>
+                    </div>
+                </div>
+                {% endif %}
 
-    <div class="auth-switch">
-        {% if mode == 'login' %}
-            New Personnel? <a href="{{ url_for('auth', mode='signup') }}">Create Identity</a>
-        {% else %}
-            Authorized already? <a href="{{ url_for('auth', mode='login') }}">Login to Portal</a>
-        {% endif %}
+                <div class="field-group">
+                    <label class="field-label">Performance Email</label>
+                    <div class="input-container">
+                        <i class="ph-bold ph-envelope"></i>
+                        <input type="email" id="email" class="auth-input" placeholder="Enter your performance email" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Security Passcode</label>
+                    <div class="input-container">
+                        <i class="ph-bold ph-lock"></i>
+                        <input type="password" id="password" class="auth-input" placeholder="{% if mode == 'login' %}Enter your passcode{% else %}Create a secure passcode{% endif %}" required>
+                        <i class="ph-bold ph-eye-slash toggle-pw" onclick="togglePassword()"></i>
+                    </div>
+                </div>
+
+                {% if mode == 'login' %}
+                <div class="form-extras">
+                    <label class="remember-me">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="{{ url_for('forgot_password') }}" class="forgot-link">Forgot passcode?</a>
+                </div>
+                {% endif %}
+
+                <button type="submit" class="btn-submit">
+                    {% if mode == 'login' %}ACCESS SYSTEM{% else %}INITIALIZE SYSTEM{% endif %}
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="social-divider">
+                {% if mode == 'login' %}OR CONTINUE WITH{% else %}OR SIGN UP WITH{% endif %}
+            </div>
+
+            <div class="social-grid">
+                <button class="btn-social" onclick="showAlert('Google Uplink Offline')">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google">
+                    Google
+                </button>
+                <button class="btn-social" onclick="showAlert('Apple ID Protocol Unavailable')">
+                    <i class="ph-bold ph-apple-logo"></i>
+                    Apple
+                </button>
+            </div>
+        </div>
+
+        <div class="feature-footer">
+            <div class="feature-item">
+                <i class="ph-bold ph-shield-check"></i>
+                <div class="feature-text">End-to-end encryption</div>
+            </div>
+            <div class="feature-item">
+                <i class="ph-bold ph-user-circle-gear"></i>
+                <div class="feature-text">Role-based access</div>
+            </div>
+            <div class="feature-item">
+                <i class="ph-bold ph-chart-line-up"></i>
+                <div class="feature-text">Audit logged & monitored</div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='client/js/auth.js') }}"></script>
+<script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const icon = document.querySelector('.toggle-pw');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('ph-eye-slash', 'ph-eye');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('ph-eye', 'ph-eye-slash');
+        }
+    }
+</script>
 {% endblock %}
